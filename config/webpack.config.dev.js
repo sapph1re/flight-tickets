@@ -178,17 +178,7 @@ module.exports = {
         query: {
           name: 'fonts/[name].[hash].[ext]'
         }
-      },
-      // Truffle solidity loader to watch for changes in Solitiy files and hot
-      // reload contracts with webpack.
-      //
-      // CURRENTLY REMOVED DUE TO INCOMPATIBILITY WITH TRUFFLE 3
-      // Compile and migrate contracts manually.
-      //
-      /*{
-        test: /\.sol$/,
-        loader: 'truffle-solidity?network_id=123'
-      }*/
+      }
     ]
   },
 

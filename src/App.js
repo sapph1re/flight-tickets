@@ -15,12 +15,17 @@ class App extends Component {
     super(props)
 
     this.state = {
+      // to save instances of web3, of the smart contract and the current account
       web3: null,
       contract: null,
       account: null,
+      // the list of airlines displayed in the table
       airlines: [],
+      // the index of the row that's being edited right now, -1 means none are edited
       editAirlineIdx: -1,
+      // errors to display during the edit mode
       editAirlineErrors: {},
+      // saved version of an airline before editing, to restore the values on cancel
       airlineBeforeEditing: null
     }
   }
@@ -50,6 +55,7 @@ class App extends Component {
     this.state.web3.eth.getAccounts((error, accounts) => {
       // Get our main contract
       flightTickets.deployed().then(instance => {
+        // Save the instance of the contract and the account
         return this.setState({ contract: instance, account: accounts[0] });
       }).then(result => {
         // Load the list of airlines from the contract
@@ -72,10 +78,11 @@ class App extends Component {
     })
   }
 
+  /** Get the list of airlines from the contract and save it to the state */
   loadAirlines = () => {
-    // Get the list of airlines from the contract
+    // First we get the total number of airlines
     return this.state.contract.getAirlinesCount.call().then(airlinesCount => {
-      // Update the list of airlines in our state with this info
+      // Then we iterate over the array of airlines to load each of them
       let promises = [];
       for (let i = 0; i < airlinesCount; i++) {
         promises.push(
@@ -84,6 +91,7 @@ class App extends Component {
       }
       return Promise.all(promises);
     }).then(results => {
+      // Now as we have all airlines loaded, we save them to the state
       let airlines = [];
       results.forEach(row => {
         airlines.push({
@@ -99,11 +107,14 @@ class App extends Component {
     });
   }
 
+  /**
+   * Validate the input before an airline is added/changed.
+   * This function is made asynchronous because it may execute a contract call,
+   * and contract calls must not be executed synchronously.
+   * @param {object} airline - object containing airline data: aName, aOwner
+   * @return {Promise} - promise that will resolve to an object of errors; empty object means no errors
+   */
   airlineValidate = (airline) => {
-    // Validate the input before an airline is added/changed
-    // Asynchronous function, returns a Promise.
-    // This function is made asynchronous because it may execute a contract call,
-    // and contract calls must not be executed synchronously.
     let errors = {};
     if (airline.aName.length < 3) {
       errors.aNameError = 'Airline name needs to be at least 3 characters long';
@@ -114,13 +125,14 @@ class App extends Component {
     if (!this.state.web3.isAddress(airline.aOwner)) {
       errors.aOwnerError = 'Airline owner must be a valid Ethereum address';
     }
+    // If we're in edit mode and aName remained unchanged, skip the uniqueness check
     if (this.state.editAirlineIdx !== -1 && this.state.airlineBeforeEditing.aName === airline.aName) {
-      // If we're in edit mode and aName remained unchanged, skip the uniqueness check.
-      // We still return a promise here because the code using this function expects a promise.
+      // We should still return a promise here
       return new Promise((resolved, rejected) => {
         resolved(errors);
       });
     }
+    // Check that airline name is unique
     return this.state.contract.airlineExists.call(this.state.web3.toHex(airline.aName)).then(exists => {
       if (exists) {
         errors.aNameError = 'This airline name already exists';
@@ -129,6 +141,7 @@ class App extends Component {
     });
   }
 
+  /** Add a new airline to the contract and update the state to display the change */
   airlineSubmit = (airline) => {
     // Add the airline to the contract
     this.state.contract.addAirline(
@@ -151,12 +164,16 @@ class App extends Component {
     });
   }
 
+  /** Remove an airline from the contract and update the state to display the change */
   airlineRemove = (i) => {
     const airline = this.state.airlines[i];
+    // Remove the airline from the contract
     this.state.contract.removeAirline(
       airline.aId,
       { from: this.state.account, gas: 80000 }
     ).then(() => {
+      // Gray out the airline in our table
+      // It will disappear completely automatically when the transaction completes
       this.setState(state => ({
         airlines: state.airlines.map((airline, j) => {
           if (j === i) {
@@ -170,6 +187,10 @@ class App extends Component {
     });
   }
 
+  /**
+   * Enable edit mode
+   * @param {number} i - index of the row to be edited
+   */
   startEditing = (i) => {
     if (this.state.editAirlineIdx === -1) {
       this.setState(state => ({
@@ -179,25 +200,28 @@ class App extends Component {
     }
   }
 
+  /** Finish editing, save the changes to the contract and update the table */
   finishEditing = () => {
     let airlineEdited = this.state.airlines[this.state.editAirlineIdx];
-    // clear the old errors first
+    // Clear the old errors first
     this.setState({
       editAirlineErrors: {}
     });
-    // if nothing changed, just turn off the edit mode, no need to submit anything
+    // If nothing changed, just turn off the edit mode, no need to submit anything
     if (airlineEdited === this.state.airlineBeforeEditing) {
       return this.setState({
         editAirlineIdx: -1,
         airlineBeforeEditing: null
       });
     }
-    // validate the new values
+    // Validate the new values
     return this.airlineValidate(airlineEdited).then(errors => {
+      // If anything is wrong with the input, display the errors and remain in the edit mode
       if (Object.keys(errors).length > 0) {
         return this.setState({
           editAirlineErrors: errors
         });
+        // If everything is fine, update the airline in the contract
       } else {
         this.state.contract.editAirline(
           this.state.airlineBeforeEditing.aId,
@@ -205,6 +229,7 @@ class App extends Component {
           airlineEdited.aOwner,
           { from: this.state.account }
         ).then(() => {
+          // Turn off the edit mode and gray out the airline in the table until the transaction completes
           this.setState(state => ({
             airlines: state.airlines.map((airline, j) => {
               if (j === state.editAirlineIdx) {
@@ -222,6 +247,7 @@ class App extends Component {
     });
   }
 
+  /** Quit the edit mode and revert the changes */
   cancelEditing = () => {
     this.setState(state => ({
       airlines: state.airlines.map((airline, j) => {
@@ -233,6 +259,7 @@ class App extends Component {
     }))
   }
 
+  /** Handle changes in the inputs when in the edit mode */
   handleChange = (e, name, i) => {
     const { value } = e.target;
     this.setState(state => ({

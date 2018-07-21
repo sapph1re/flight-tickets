@@ -13,6 +13,7 @@ import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 
+// Customizing the look of the table cells
 const CustomTableCell = withStyles(theme => ({
   head: {
     backgroundColor: theme.palette.common.black,
@@ -24,9 +25,27 @@ const CustomTableCell = withStyles(theme => ({
   }
 }))(TableCell);
 
-
+/**
+ * A table with data that can be edited.
+ * This is a stateless component. Make sure to maintain the data in your state outside.
+ * @param data - the data to be displayed in the table
+ * @param dataErrors - the errors to be displayed when in the edit mode
+ * @param dataStructure - list of data columns, each must include:
+ *  - string name: the column name to be displayed
+ *  - string prop: must be same as the corresponding key in "data"
+ *  - boolean editable: whether this data can be edited or not
+ *  - string errorProp: must be same as the corresponding key in "dataErrors";
+ *  this parameter can be skipped when "editable" is false
+ * @param editIdx - index of the row currently being edited, -1 means edit mode is off
+ * @param handleChange - function to be called whenever an input is changed (in edit mode)
+ * @param startEditing - function to be called when edit mode is turned on
+ * @param finishEditing - function to be called to submit the edited data
+ * @param cancelEditing - function to be called to cancel editing and quit the edit mode
+ * @param handleRemove - function to be called to remove a row from the data
+ */
 class EditableTable extends React.Component {
 
+  /** Render the table header with given data columns */
   renderHeaderRow() {
     const { dataStructure } = this.props;
 
@@ -39,6 +58,10 @@ class EditableTable extends React.Component {
     });
   }
 
+  /**
+   * Render a field with data, an editable text field when in edit mode
+   * and just a plain text otherwise
+   */
   renderEditableField(dataColumn, dataRow, rowIdx) {
     const { editIdx, dataErrors, handleChange } = this.props;
 
@@ -59,6 +82,7 @@ class EditableTable extends React.Component {
     }
   };
 
+  /** Render buttons "edit", "remove", "save", "cancel" depending on the mode */
   renderActionButtons(rowIdx) {
     const { editIdx, startEditing, finishEditing, cancelEditing, handleRemove } = this.props;
 
@@ -93,6 +117,7 @@ class EditableTable extends React.Component {
     );
   }
 
+  /** Render the table body with all the data, editable data fields and action buttons */
   renderTableBody() {
     const { data, dataStructure } = this.props;
 

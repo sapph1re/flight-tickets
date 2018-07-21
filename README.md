@@ -12,6 +12,9 @@ Ethereum-based decentralized application that allows airlines to sell flight tic
 ## How to run it
 
 1. Clone the repository
+```
+git clone https://github.com/sapph1re/flight-tickets.git
+```
 
 2. Install dependencies:
 

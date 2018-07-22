@@ -57,7 +57,7 @@ class AirlineForm extends React.Component {
 
   render() {
     return (
-      <form>
+      <form onSubmit={e => this.onSubmit(e)}>
         <Grid container spacing={24}>
           <Grid item xs={4}>
             <TextField
@@ -84,7 +84,7 @@ class AirlineForm extends React.Component {
             />
           </Grid>
           <Grid item xs={2}>
-            <Button variant="contained" color="primary" onClick={e => this.onSubmit(e)}>
+            <Button type="submit" variant="contained" color="primary">
               Add
             </Button>
           </Grid>

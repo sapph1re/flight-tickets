@@ -46,6 +46,19 @@ truffle migrate
 npm run start
 ```
 
+## Testing
+
+The tests cover:
+* ownership of the contract and authorization of access
+* add/edit/remove operations for the data
+* verification of the data stored
+* input data validation
+
+To run the tests:
+```
+truffle test
+```
+
 ## Author
 
 * **Roman Vinogradov** - [sapph1re](https://github.com/sapph1re)

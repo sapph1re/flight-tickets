@@ -101,6 +101,7 @@ class App extends Component {
           disabled: false
         });
       });
+      airlines.sort((a, b) => (a.aId < b.aId ? -1 : 1));
       return this.setState({ airlines: airlines });
     }).catch(error => {
       console.log(error);

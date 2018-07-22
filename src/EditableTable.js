@@ -11,6 +11,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import CloseIcon from '@material-ui/icons/Close';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 
 // Customizing the look of the table cells
@@ -122,7 +123,7 @@ class EditableTable extends React.Component {
     const { data, dataStructure } = this.props;
 
     return data.map((dataRow, rowIdx) => {
-      if (dataRow.disabled) {
+      if (dataRow.inProgress) {
         return (
           <TableRow
             key={`tr-${rowIdx}`}
@@ -133,7 +134,9 @@ class EditableTable extends React.Component {
                 {dataRow[dataColumn.prop]}
               </CustomTableCell>
             ))}
-            <CustomTableCell />
+            <CustomTableCell style={{ textAlign: 'center' }}>
+              <CircularProgress size={20} />
+            </CustomTableCell>
           </TableRow>
         );
       } else {
@@ -144,7 +147,7 @@ class EditableTable extends React.Component {
                 {this.renderEditableField(dataColumn, dataRow, rowIdx)}
               </CustomTableCell>
             ))}
-            <CustomTableCell>
+            <CustomTableCell style={{ textAlign: 'center' }}>
               {this.renderActionButtons(rowIdx)}
             </CustomTableCell>
           </TableRow>
@@ -159,7 +162,9 @@ class EditableTable extends React.Component {
         <TableHead>
           <TableRow>
             {this.renderHeaderRow()}
-            <CustomTableCell>Actions</CustomTableCell>
+            <CustomTableCell style={{ textAlign: 'center' }}>
+              Actions
+            </CustomTableCell>
           </TableRow>
         </TableHead>
         <TableBody>{this.renderTableBody()}</TableBody>

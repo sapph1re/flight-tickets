@@ -98,7 +98,7 @@ class App extends Component {
           aId: row[0].toString(),
           aName: this.state.web3.toUtf8(row[1]),
           aOwner: row[2],
-          disabled: false
+          inProgress: false
         });
       });
       airlines.sort((a, b) => (a.aId < b.aId ? -1 : 1));
@@ -150,14 +150,14 @@ class App extends Component {
       airline.aOwner,
       { from: this.state.account }
     ).then(() => {
-      // Add the new airline to the list, but grayed out (disabled: true)
+      // Add the new airline to the list, but grayed out (inProgress: true)
       // It will update to normal automatically when the transaction completes
       this.setState({
         airlines: [...this.state.airlines, {
           aId: null,
           aName: airline.aName,
           aOwner: airline.aOwner,
-          disabled: true
+          inProgress: true
         }]
       });
     }).catch(error => {
@@ -178,7 +178,7 @@ class App extends Component {
       this.setState(state => ({
         airlines: state.airlines.map((airline, j) => {
           if (j === i) {
-            airline.disabled = true;
+            airline.inProgress = true;
           }
           return airline;
         })
@@ -234,7 +234,7 @@ class App extends Component {
           this.setState(state => ({
             airlines: state.airlines.map((airline, j) => {
               if (j === state.editAirlineIdx) {
-                airline.disabled = true;
+                airline.inProgress = true;
               }
               return airline;
             }),

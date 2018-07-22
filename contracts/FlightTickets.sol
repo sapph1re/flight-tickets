@@ -1,10 +1,14 @@
 pragma solidity ^0.4.24;
 
+import "../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
+import "../installed_contracts/zeppelin/contracts/ownership/Ownable.sol";
+
 /**
  * @title Flight tickets marketplace for customers and airlines
  * @author Roman Vinogradov <dev.romanv@gmail.com>
  */
-contract FlightTickets {
+contract FlightTickets is Ownable {
+  using SafeMath for uint256;
 
   // Airline has an auto-incremented ID, a unique name and an owner
   struct Airline {
@@ -19,7 +23,6 @@ contract FlightTickets {
     uint256 index;
   }
 
-  address private owner;  // The owner of this contract, i.e. the admin
   Airline[] public airlines;  // The list of airlines
   uint256 private aIdLast;  // Last airline ID generated, used for autoincrementing
   mapping(uint256 => ArrayIndex) private airlineIdIndex;  // Index to find Airline by its ID
@@ -29,15 +32,6 @@ contract FlightTickets {
   event LogAirlineAdded(uint256 indexed aId, bytes32 indexed aName, address aOwner);
   event LogAirlineUpdated(uint256 indexed aId, bytes32 newAName, address newAOwner);
   event LogAirlineRemoved(uint256 indexed aId);
-
-  constructor() public {
-    owner = msg.sender;
-  }
-
-  modifier onlyOwner() {
-    require(msg.sender == owner);
-    _;
-  }
 
   /**
    * @notice Check if the airline name is taken or not
@@ -67,8 +61,7 @@ contract FlightTickets {
   function addAirline(bytes32 _aName, address _aOwner) public onlyOwner {
     require(!airlineExists(_aName));
     // generate new airline ID
-    uint256 _aId = aIdLast + 1;
-    require(_aId > aIdLast);  // prevent overflow
+    uint256 _aId = aIdLast.add(1);
     aIdLast = _aId;
     // add a new Airline record to airlines array and save its index in the array
     uint256 _index = airlines.push(Airline(_aId, _aName, _aOwner)) - 1;

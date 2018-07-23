@@ -19,6 +19,8 @@ class App extends Component {
       web3: null,
       contract: null,
       account: null,
+      // role of the user: customer/airline/admin
+      role: 'customer',
       // the list of airlines displayed in the table
       airlines: [],
       // the index of the row that's being edited right now, -1 means none are edited
@@ -58,8 +60,20 @@ class App extends Component {
         // Save the instance of the contract and the account
         return this.setState({ contract: instance, account: accounts[0] });
       }).then(result => {
+        // Detect when account changes
+        setInterval(() => {
+          this.state.web3.eth.getAccounts((error, accounts) => {
+            if (accounts[0] !== this.state.account) {
+              // Update account in the state and update the user role
+              this.setState({ account: accounts[0] }, this.setRole);
+            }
+          });
+        }, 500);
         // Load the list of airlines from the contract
         return this.loadAirlines();
+      }).then(result => {
+        // Set the user role depending on their account
+        return this.setRole();
       }).then(result => {
         // Update the list every time when an airline is added/updated/removed
         let updateAirlinesCallback = (error, result) => {
@@ -67,15 +81,37 @@ class App extends Component {
             console.log(error);
             return;
           }
-          this.loadAirlines();
+          // Update the list of airlines and update the role of the user
+          this.loadAirlines().then(this.setRole);
         }
         this.state.contract.LogAirlineAdded().watch(updateAirlinesCallback);
         this.state.contract.LogAirlineUpdated().watch(updateAirlinesCallback);
         this.state.contract.LogAirlineRemoved().watch(updateAirlinesCallback);
+        // Update the user role when the contract changes its owner (very rare case, but still)
+        this.state.contract.OwnershipTransferred().watch(this.setRole);
       }).catch(error => {
         console.log(error);
-      })
-    })
+      });
+    });
+  }
+
+  /** Figure out the role of the user and save it to the state */
+  setRole = () => {
+    // Get the owner of the contract
+    return this.state.contract.owner.call().then(owner => {
+      if (this.state.account === owner) {
+        // Contract owner is admin
+        return this.setState({ role: 'admin' });
+      } else {
+        if (this.state.airlines.find((airline, i) => (this.state.account === airline.aOwner), this)) {
+          // Airline owner
+          return this.setState({ role: 'airline' });
+        } else {
+          // Just a guest (a customer)
+          return this.setState({ role: 'customer' });
+        }
+      }
+    });
   }
 
   /** Get the list of airlines from the contract and save it to the state */
@@ -272,7 +308,7 @@ class App extends Component {
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
-          <a href="#" className="pure-menu-heading pure-menu-link">Admin</a>
+          <a href="#" className="pure-menu-heading pure-menu-link">{this.state.role}</a>
         </nav>
 
         <main className="container">

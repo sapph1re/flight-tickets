@@ -23,11 +23,14 @@ class App extends React.Component {
       web3: null,
       contract: null,
       account: null,
-      activeTab: 0,
-      // role of the user: customer/airline/admin
-      role: 'customer',
       // the list of airlines
-      airlines: []
+      airlines: [],
+      // whether the user is the admin or not
+      userIsAdmin: false,
+      // list of airlines owned by the user
+      userOwnsAirlines: [],
+      // the interface tab that is currently open
+      activeTab: 0
     };
   }
 
@@ -63,16 +66,16 @@ class App extends React.Component {
         setInterval(() => {
           this.state.web3.eth.getAccounts((error, accounts) => {
             if (accounts[0] !== this.state.account) {
-              // Update account in the state and update the user role
-              this.setState({ account: accounts[0] }, this.setRole);
+              // Update account in the state and update the user rights
+              this.setState({ account: accounts[0] }, this.setUserRights);
             }
           });
         }, 500);
         // Load the list of airlines from the contract
         return this.loadAirlines();
       }).then(result => {
-        // Set the user role depending on their account
-        return this.setRole();
+        // Set the user rights depending on their account
+        return this.setUserRights();
       }).then(result => {
         // Update the list every time when an airline is added/updated/removed
         let updateAirlinesCallback = (error, result) => {
@@ -80,36 +83,30 @@ class App extends React.Component {
             console.log(error);
             return;
           }
-          // Update the list of airlines and update the role of the user
-          this.loadAirlines().then(this.setRole);
+          // Update the list of airlines and update the rights of the user
+          this.loadAirlines().then(this.setUserRights);
         }
         this.state.contract.LogAirlineAdded().watch(updateAirlinesCallback);
         this.state.contract.LogAirlineUpdated().watch(updateAirlinesCallback);
         this.state.contract.LogAirlineRemoved().watch(updateAirlinesCallback);
-        // Update the user role when the contract changes its owner (very rare case, but still)
-        this.state.contract.OwnershipTransferred().watch(this.setRole);
+        // Update the user rights when the contract changes its owner (very rare case, but still)
+        this.state.contract.OwnershipTransferred().watch(this.setUserRights);
       }).catch(error => {
         console.log(error);
       });
     });
   }
 
-  /** Figure out the role of the user and save it to the state */
-  setRole = () => {
+  /** Figure out the rights of the user and save it to the state */
+  setUserRights = () => {
     // Get the owner of the contract
     return this.state.contract.owner.call().then(owner => {
-      if (this.state.account === owner) {
-        // Contract owner is admin
-        return this.setState({ role: 'admin' });
-      } else {
-        if (this.state.airlines.find((airline, i) => (this.state.account === airline.aOwner), this)) {
-          // Airline owner
-          return this.setState({ role: 'airline' });
-        } else {
-          // Just a guest (a customer)
-          return this.setState({ role: 'customer' });
-        }
-      }
+      // Contract owner is admin
+      return this.setState({ userIsAdmin: (this.state.account === owner) });
+    }).then(() => {
+      // If user is an airline owner, find which airlines he owns
+      let ownedAirlines = this.state.airlines.filter((airline, i) => (this.state.account === airline.aOwner), this);
+      return this.setState({ userOwnsAirlines: ownedAirlines });
     });
   }
 
@@ -163,9 +160,13 @@ class App extends React.Component {
             indicatorColor="primary"
             textColor="primary"
           >
-            <Tab icon={<SearchIcon />} label="Search Tickets" />
-            <Tab icon={<ListIcon />} label="Airline: Manage Your Tickets" />
-            <Tab icon={<FlightIcon />} label="Admin: Manage Airlines" />
+            <Tab icon={<SearchIcon />} label="Search Tickets" value={0} />
+            {this.state.userOwnsAirlines.length > 0 && (
+              <Tab icon={<ListIcon />} label="Airline: Manage Your Tickets" value={1} />
+            )}
+            {this.state.userIsAdmin && (
+              <Tab icon={<FlightIcon />} label="Admin: Manage Airlines" value={2} />
+            )}
           </Tabs>
         </Paper>
 
@@ -174,10 +175,10 @@ class App extends React.Component {
           {this.state.activeTab === 0 && (
             <div>Customer Interface</div>
           )}
-          {this.state.activeTab === 1 && (
+          {this.state.activeTab === 1 && this.state.userOwnsAirlines.length > 0 && (
             <div>Airline Interface</div>
           )}
-          {this.state.activeTab === 2 && (
+          {this.state.activeTab === 2 && this.state.userIsAdmin && (
             <AirlineList
               airlines={this.state.airlines}
               setAirlines={this.setAirlines}
@@ -186,6 +187,7 @@ class App extends React.Component {
               account={this.state.account}
             />
           )}
+
         </main>
       </div>
     );

@@ -136,7 +136,7 @@ class App extends React.Component {
           inProgress: false
         });
       });
-      airlines.sort((a, b) => (a.aId < b.aId ? -1 : 1));
+      airlines.sort((a, b) => (parseInt(a.aId, 10) < parseInt(b.aId, 10) ? -1 : 1));
       return this.setState({ airlines: airlines });
     }).catch(error => {
       console.log(error);

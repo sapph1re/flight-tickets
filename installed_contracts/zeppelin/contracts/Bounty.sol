@@ -1,8 +1,8 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.24;
 
 
-import './payment/PullPayment.sol';
-import './lifecycle/Destructible.sol';
+import "./payment/PullPayment.sol";
+import "./lifecycle/Destructible.sol";
 
 
 /**
@@ -18,7 +18,7 @@ contract Bounty is PullPayment, Destructible {
   /**
    * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
    */
-  function() payable {
+  function() external payable {
     require(!claimed);
   }
 
@@ -30,8 +30,21 @@ contract Bounty is PullPayment, Destructible {
   function createTarget() public returns(Target) {
     Target target = Target(deployContract());
     researchers[target] = msg.sender;
-    TargetCreated(target);
+    emit TargetCreated(target);
     return target;
+  }
+
+  /**
+   * @dev Transfers the contract funds to the researcher that proved the contract is broken.
+   * @param target contract
+   */
+  function claim(Target target) public {
+    address researcher = researchers[target];
+    require(researcher != address(0));
+    // Check Target contract invariants
+    require(!target.checkInvariant());
+    asyncTransfer(researcher, address(this).balance);
+    claimed = true;
   }
 
   /**
@@ -39,19 +52,6 @@ contract Bounty is PullPayment, Destructible {
    * @return A target contract address
    */
   function deployContract() internal returns(address);
-
-  /**
-   * @dev Sends the contract funds to the researcher that proved the contract is broken.
-   * @param target contract
-   */
-  function claim(Target target) public {
-    address researcher = researchers[target];
-    require(researcher != 0);
-    // Check Target contract invariants
-    require(!target.checkInvariant());
-    asyncSend(researcher, this.balance);
-    claimed = true;
-  }
 
 }
 

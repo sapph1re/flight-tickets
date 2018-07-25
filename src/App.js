@@ -174,7 +174,7 @@ class App extends React.Component {
     }
     return (
       <div className="App">
-        <Paper>
+        <Paper square>
           <Tabs
             value={this.state.activeTab}
             onChange={this.switchTab}

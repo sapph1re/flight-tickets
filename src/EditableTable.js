@@ -79,7 +79,7 @@ class EditableTable extends React.Component {
         />
       );
     } else {
-      return dataRow[dataColumn.prop];
+      return dataRow[dataColumn.prop].toString();
     }
   };
 

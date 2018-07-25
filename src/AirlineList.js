@@ -4,7 +4,7 @@ import EditableTable from "./EditableTable";
 import Grid from '@material-ui/core/Grid';
 
 /**
- * A list of airlines with a form to add new airline and edit/remove functionality
+ * A list of airlines with a form to add a new airline and edit/remove functionality
  * @param airlines - list of airlines
  * @param setAirlines - function to update airlines
  * @param web3 - instance of web3
@@ -88,6 +88,9 @@ class AirlineList extends React.Component {
     // Remove the airline from the contract
     this.props.contract.removeAirline(
       airline.aId,
+      // Gas limit is explicitly set here because MetaMask underestimates the gas usage
+      // when some storage is freed in the transaction. Actual gas usage is lower than the
+      // required limit, because a part of the gas is refunded at the end of the transaction
       { from: this.props.account, gas: 80000 }
     ).then(() => {
       // Gray out the airline in our table
@@ -182,7 +185,7 @@ class AirlineList extends React.Component {
   }
 
   /** Handle changes in the inputs when in the edit mode */
-  handleChange = (e, name, i) => {
+  onInputChanged = (e, name, i) => {
     const { value } = e.target;
     this.props.setAirlines(
       this.props.airlines.map((airline, j) => j === i ? { ...airline, [name]: value } : airline)
@@ -202,7 +205,7 @@ class AirlineList extends React.Component {
           </Grid>
           <Grid item xs={12}>
             <EditableTable
-              handleChange={this.handleChange}
+              handleChange={this.onInputChanged}
               handleRemove={this.airlineRemove}
               startEditing={this.startEditing}
               finishEditing={this.finishEditing}

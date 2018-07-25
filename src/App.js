@@ -2,6 +2,7 @@ import React from 'react';
 import getWeb3 from './utils/getWeb3';
 import FlightTicketsContract from '../build/contracts/FlightTickets.json';
 import AirlineList from './AirlineList';
+import TicketManager from './TicketManager';
 import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -34,7 +35,7 @@ class App extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     // Get network provider and web3 instance.
     // See utils/getWeb3 for more info.
 
@@ -91,10 +92,23 @@ class App extends React.Component {
         this.state.contract.LogAirlineRemoved().watch(updateAirlinesCallback);
         // Update the user rights when the contract changes its owner (very rare case, but still)
         this.state.contract.OwnershipTransferred().watch(this.setUserRights);
+        // Call other callbacks that might be waiting for the contract to get ready
+        if (typeof(this.onContractReady) === 'function') {
+          this.onContractReady();
+        }
       }).catch(error => {
         console.log(error);
       });
     });
+  }
+
+  setOnContractReady = (callback) => {
+    this.onContractReady = () => {
+      callback(this.state.web3, this.state.contract);
+    }
+    if (this.state.web3 !== null && this.state.contract !== null) {
+      this.onContractReady();
+    }
   }
 
   /** Figure out the rights of the user and save it to the state */
@@ -162,7 +176,7 @@ class App extends React.Component {
           >
             <Tab icon={<SearchIcon />} label="Search Tickets" value={0} />
             {this.state.userOwnsAirlines.length > 0 && (
-              <Tab icon={<ListIcon />} label="Airline: Manage Your Tickets" value={1} />
+              <Tab icon={<ListIcon />} label="My Airline" value={1} />
             )}
             {this.state.userIsAdmin && (
               <Tab icon={<FlightIcon />} label="Admin: Manage Airlines" value={2} />
@@ -176,7 +190,11 @@ class App extends React.Component {
             <div>Customer Interface</div>
           )}
           {this.state.activeTab === 1 && this.state.userOwnsAirlines.length > 0 && (
-            <div>Airline Interface</div>
+            <TicketManager
+              airlines={this.state.userOwnsAirlines}
+              setOnContractReady={this.setOnContractReady}
+              account={this.state.account}
+            />
           )}
           {this.state.activeTab === 2 && this.state.userIsAdmin && (
             <AirlineList

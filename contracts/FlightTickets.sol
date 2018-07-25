@@ -33,7 +33,7 @@ contract FlightTickets is Ownable {
     uint256 tPrice;
     // Number of seats available at this price
     uint256 tQuantity;
-    // Timestamps of planned departure and arrival
+    // Timestamps of planned departure and arrival, UTC
     uint256 tDeparture;
     uint256 tArrival;
   }
@@ -203,13 +203,17 @@ contract FlightTickets is Ownable {
    * @param _tTo City to which the flight arrives
    * @param _tPrice Price for the ticket in wei
    * @param _tQuantity Number of seats available for this flight at this price
-   * @param _tDeparture Timestamp of the planned departure
-   * @param _tArrival Timestamp of the planned arrival
+   * @param _tDeparture Timestamp of the planned departure, UTC
+   * @param _tArrival Timestamp of the planned arrival, UTC
    */
   function addTicket(
     uint256 _aId, bytes32 _tFrom, bytes32 _tTo, uint256 _tPrice,
     uint256 _tQuantity, uint256 _tDeparture, uint256 _tArrival
   ) public onlyAirlineOwner(_aId) {
+    // make sure departure & arrival times are valid
+    require(_tQuantity > 0, "Quantity must be positive");
+    require(_tDeparture > now, "Departure time is in the past");
+    require(_tArrival > _tDeparture, "Arrival time is before departure");
     // generate new ticket ID
     uint256 _tId = tIdLast.add(1);
     tIdLast = _tId;

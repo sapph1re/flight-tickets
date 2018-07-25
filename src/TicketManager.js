@@ -1,6 +1,7 @@
 import React from 'react';
 import TicketForm from "./TicketForm";
 import EditableTable from "./EditableTable";
+import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -304,10 +305,12 @@ class TicketManager extends React.Component {
         <h1>Manage Tickets</h1>
 
         <Grid container spacing={24}>
-          <Grid item xs={12}>
-            <TicketForm
-              onValidate={this.ticketValidateSubmit}
-              onSubmit={this.ticketSubmit} />
+          <Grid item xs={4}>
+            <Paper style={{padding: 10}}>
+              <TicketForm
+                onValidate={this.ticketValidateSubmit}
+                onSubmit={this.ticketSubmit} />
+            </Paper>
           </Grid>
           <Grid item xs={12}>
             <EditableTable

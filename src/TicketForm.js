@@ -77,8 +77,9 @@ class TicketForm extends React.Component {
   render() {
     return (
       <form onSubmit={e => this.onSubmit(e)}>
+        <h3 style={{marginTop: 10, marginLeft: 5, marginBottom: 5}}>Add Ticket</h3>
         <Grid container spacing={24}>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               name="tFrom"
               placeholder="From City"
@@ -90,7 +91,7 @@ class TicketForm extends React.Component {
               error={this.state.tFromError.length > 0}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               name="tTo"
               placeholder="To City"
@@ -102,7 +103,9 @@ class TicketForm extends React.Component {
               error={this.state.tToError.length > 0}
             />
           </Grid>
-          <Grid item xs={4}>
+        </Grid>
+        <Grid container spacing={24}>
+          <Grid item xs={6}>
             <TextField
               name="tPrice"
               placeholder="Ticket Price in ETH"
@@ -114,7 +117,7 @@ class TicketForm extends React.Component {
               error={this.state.tPriceError.length > 0}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               name="tQuantity"
               placeholder="Number Of Seats Available"
@@ -126,7 +129,9 @@ class TicketForm extends React.Component {
               error={this.state.tQuantityError.length > 0}
             />
           </Grid>
-          <Grid item xs={4}>
+        </Grid>
+        <Grid container spacing={24}>
+          <Grid item xs={6}>
             <TextField
               name="tDeparture"
               placeholder="Departure Timestamp"
@@ -138,7 +143,7 @@ class TicketForm extends React.Component {
               error={this.state.tDepartureError.length > 0}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               name="tArrival"
               placeholder="Arrival Timestamp"
@@ -150,9 +155,11 @@ class TicketForm extends React.Component {
               error={this.state.tArrivalError.length > 0}
             />
           </Grid>
-          <Grid item xs={2}>
-            <Button type="submit" variant="contained" color="primary">
-              Add
+        </Grid>
+        <Grid container spacing={24}>
+          <Grid item xs={12}>
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Add Ticket
             </Button>
           </Grid>
         </Grid>

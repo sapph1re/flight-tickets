@@ -4,19 +4,23 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
 /**
- * A form to create a new Airline
+ * A form to search tickets
  * @param onValidate - function to be called to validate the data before submitting
  * @param onSubmit - function to be called to submit the data
  */
-class AirlineForm extends React.Component {
-  state = {
-    // input data
-    aName: '',
-    aOwner: '',
-    // errors for the inputs
-    aNameError: '',
-    aOwnerError: ''
-  };
+class SearchTicketForm extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      // input data
+      sFrom: '',
+      sTo: '',
+      // errors
+      sFromError: '',
+      sToError: ''
+    }
+  }
 
   /** Update the data in the state whenever an input value is changed */
   change = e => {
@@ -30,62 +34,57 @@ class AirlineForm extends React.Component {
     e.preventDefault();
     // Clear the errors first
     this.setState({
-      aNameError: '',
-      aOwnerError: ''
+      sFromError: '',
+      sToError: ''
     });
     // Extract the data and remove unnecessary spaces on the sides, if any
     let data = {
-      aName: this.state.aName.trim(),
-      aOwner: this.state.aOwner.trim()
+      sFrom: this.state.sFrom.trim(),
+      sTo: this.state.sTo.trim()
     };
+    this.setState(data);
     // Validate the data
-    this.props.onValidate(data).then(errors => {
-      if (Object.keys(errors).length > 0) {
-        // Set errors if any
-        this.setState(errors);
-      } else {
-        // Submit the data otherwise
-        this.props.onSubmit(data);
-        // And clear the form
-        this.setState({
-          aName: '',
-          aOwner: ''
-        });
-      }
-    });
+    let errors = this.props.onValidate(data);
+    if (Object.keys(errors).length > 0) {
+      // Set errors if any
+      this.setState(errors);
+    } else {
+      // Submit the data otherwise
+      this.props.onSubmit(data);
+    }
   };
 
   render() {
     return (
       <form onSubmit={e => this.onSubmit(e)}>
         <Grid container spacing={24}>
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <TextField
-              name="aName"
-              placeholder="Airline Name"
-              label="Airline Name"
+              name="sFrom"
+              placeholder="From City"
+              label="From"
               fullWidth={true}
-              value={this.state.aName}
+              value={this.state.sFrom}
               onChange={e => this.change(e)}
-              helperText={this.state.aNameError}
-              error={this.state.aNameError.length > 0}
+              helperText={this.state.sFromError}
+              error={this.state.sFromError.length > 0}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <TextField
-              name="aOwner"
-              placeholder="Airline Owner Address"
-              label="Airline Owner"
+              name="sTo"
+              placeholder="To City"
+              label="To"
               fullWidth={true}
-              value={this.state.aOwner}
+              value={this.state.sTo}
               onChange={e => this.change(e)}
-              helperText={this.state.aOwnerError}
-              error={this.state.aOwnerError.length > 0}
+              helperText={this.state.sToError}
+              error={this.state.sToError.length > 0}
             />
           </Grid>
           <Grid item xs={2}>
             <Button type="submit" variant="contained" color="primary" style={{marginTop: 7}}>
-              Add
+              Search!
             </Button>
           </Grid>
         </Grid>
@@ -94,4 +93,4 @@ class AirlineForm extends React.Component {
   }
 }
 
-export default AirlineForm;
+export default SearchTicketForm;

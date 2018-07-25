@@ -3,6 +3,7 @@ import getWeb3 from './utils/getWeb3';
 import FlightTicketsContract from '../build/contracts/FlightTickets.json';
 import AirlineList from './AirlineList';
 import TicketManager from './TicketManager';
+import TicketBrowser from './TicketBrowser';
 import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -163,11 +164,17 @@ class App extends React.Component {
   };
 
   render() {
+    if (!this.state.web3) {
+      return (
+        <div className="App" style={{ textAlign: 'center', marginTop: 100 }}>
+          Waiting for web3...
+        </div>);
+    }
     // Make sure the user does not accidentially spend real ETH here
     // TODO: Remove this block in production
-    if (!this.state.web3 || this.state.web3.version.network === '1') {
+    if (this.state.web3.version.network === '1') {
       return (
-        <div className="App" style={{textAlign: 'center', marginTop: 100}}>
+        <div className="App" style={{ textAlign: 'center', marginTop: 100 }}>
           You are connected to Ethereum mainnet! You should switch to a testnet.
         </div>
       );
@@ -196,7 +203,11 @@ class App extends React.Component {
         <main className="container">
 
           {this.state.activeTab === 0 && (
-            <div>Customer Interface</div>
+            <TicketBrowser
+              web3={this.state.web3}
+              contract={this.state.contract}
+              account={this.state.account}
+            />
           )}
           {this.state.activeTab === 1 && this.state.userOwnsAirlines.length > 0 && (
             <TicketManager

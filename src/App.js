@@ -93,7 +93,7 @@ class App extends React.Component {
         // Update the user rights when the contract changes its owner (very rare case, but still)
         this.state.contract.OwnershipTransferred().watch(this.setUserRights);
         // Call other callbacks that might be waiting for the contract to get ready
-        if (typeof(this.onContractReady) === 'function') {
+        if (typeof this.onContractReady === 'function') {
           this.onContractReady();
         }
       }).catch(error => {
@@ -163,6 +163,15 @@ class App extends React.Component {
   };
 
   render() {
+    // Make sure the user does not accidentially spend real ETH here
+    // TODO: Remove this block in production
+    if (!this.state.web3 || this.state.web3.version.network === '1') {
+      return (
+        <div className="App" style={{textAlign: 'center', marginTop: 100}}>
+          You are connected to Ethereum mainnet! You should switch to a testnet.
+        </div>
+      );
+    }
     return (
       <div className="App">
         <Paper>

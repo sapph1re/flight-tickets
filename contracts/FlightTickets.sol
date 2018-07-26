@@ -116,6 +116,17 @@ contract FlightTickets is Ownable {
   }
 
   /**
+   * @notice Get a certain airline by its ID
+   * @param _aId ID of the airline
+   * @return Airline data
+   */
+  function getAirlineById(uint256 _aId) public view returns(uint256 aId, bytes32 aName, address aOwner) {
+    require(airlineIdIndex[_aId].exists, "Airline does not exist");
+    Airline memory airline = airlines[airlineIdIndex[_aId].index];
+    return (airline.aId, airline.aName, airline.aOwner);
+  }
+
+  /**
    * @notice Get the number of tickets from a given airline
    * @dev Use it in the frontend to iterate over tickets by airline
    * @param _aId ID of the airline
@@ -155,6 +166,82 @@ contract FlightTickets is Ownable {
   ) {
     uint256 _tId = ticketsByAirline[_aId][_index];
     return getTicketById(_tId);
+  }
+
+  /**
+   * @notice Finds only direct flights between two cities
+   * @param _from From where
+   * @param _to To where
+   * @return Fixed-sized array of ticket IDs. Returns maximum of 20 tickets.
+   * Zero value means no ticket. Check for zeroes when iterating over the result.
+   * result.length does not represent the number of tickets found!
+   */
+  function findDirectFlights(bytes32 _from, bytes32 _to) public view returns (uint256[20]) {
+    uint256[20] memory ticketsFound;
+    uint256 i = 0;
+    for (uint256 j = 0; j < tickets.length; j++) {
+      if (tickets[j].tFrom == _from && tickets[j].tTo == _to) {
+        ticketsFound[i++] = tickets[j].tId;
+      }
+    }
+    return ticketsFound;
+  }
+
+  /**
+   * @notice Finds direct & indirect flights between two cities with one stop maximum
+   * @param _from From where
+   * @param _to To where
+   * @return Fixed-sized array of pairs of ticket IDs. Each pair is a 2-elements array.
+   * If second ticket ID in a pair is zero, it is a direct flight (one ticket only).
+   * Otherwise it is an indirect flight represented by the first ticket ID and second ticket ID.
+   * Returns maximum of 20 flights. When both IDs in a pair are zero, it means no ticket.
+   * Check for zeroes when iterating over the result. Result.length does not represent
+   * the number of tickets found!
+   */
+  function findOneStopFlights(bytes32 _from, bytes32 _to) public view returns (uint256[2][20]) {
+    uint256[2][20] memory ticketsFound;
+    uint256 i = 0;
+    // Max array length of 1024 is set assuming that we won't use this with more than some
+    // thousands of tickets in the system, as for that we would need to heavily optimize the search
+    Ticket[1024] memory ticketsFrom;
+    uint256 j = 0;
+    Ticket[1024] memory ticketsTo;
+    uint256 k = 0;
+    // Scan through all existing tickets, saving direct flights and saving a list of flights
+    // that have either TO or FROM matching our search. They could be parts of an indirect flight.
+    for (uint256 l = 0; l < tickets.length; l++) {
+      if (tickets[l].tFrom == _from) {
+        // FROM-matching flight found
+        ticketsFrom[j++] = tickets[l];
+        if (tickets[l].tTo == _to) {
+          // Direct flight found
+          ticketsFound[i++] = [tickets[l].tId, 0];
+        }
+      } else if (tickets[l].tTo == _to) {
+        // TO-matching flight found
+        ticketsTo[k++] = tickets[l];
+      }
+    }
+    // Scan through the saved FROM-matching flights and find where their TO matches with
+    // the FROM of a TO-matching flight from the second array. It means a one-stop flight found.
+    for (l = 0; l < ticketsFrom.length; l++) {
+      // It is a fixed-size array, so tickets end when we see zero instead of a ticket ID
+      if (ticketsFrom[l].tId == 0) {
+        break;
+      }
+      // More iterators Mom. Oh yes, spread that shit all over...
+      for (uint256 m = 0; m < ticketsTo.length; m++) {
+        if (ticketsTo[m].tId == 0) {
+          break;
+        }
+        // Are these two flights connected?
+        if (ticketsTo[m].tFrom == ticketsFrom[l].tTo) {
+          // One-stop flight found
+          ticketsFound[i++] = [ticketsFrom[l].tId, ticketsTo[m].tId];
+        }
+      }
+    }
+    return ticketsFound;
   }
 
   /**
@@ -323,82 +410,6 @@ contract FlightTickets is Ownable {
     // remove the last element of the array
     tickets.length--;
     emit LogTicketRemoved(_tId);
-  }
-
-  /**
-   * @notice Finds only direct flights between two cities
-   * @param _from From where
-   * @param _to To where
-   * @return Fixed-sized array of ticket IDs. Returns maximum of 20 tickets.
-   * Zero value means no ticket. Check for zeroes when iterating over the result.
-   * result.length does not represent the number of tickets found!
-   */
-  function findDirectFlights(bytes32 _from, bytes32 _to) public view returns (uint256[20]) {
-    uint256[20] memory ticketsFound;
-    uint256 i = 0;
-    for (uint256 j = 0; j < tickets.length; j++) {
-      if (tickets[j].tFrom == _from && tickets[j].tTo == _to) {
-        ticketsFound[i++] = tickets[j].tId;
-      }
-    }
-    return ticketsFound;
-  }
-
-  /**
-   * @notice Finds direct & indirect flights between two cities with one stop maximum
-   * @param _from From where
-   * @param _to To where
-   * @return Fixed-sized array of pairs of ticket IDs. Each pair is a 2-elements array.
-   * If second ticket ID in a pair is zero, it is a direct flight (one ticket only).
-   * Otherwise it is an indirect flight represented by the first ticket ID and second ticket ID.
-   * Returns maximum of 20 flights. When both IDs in a pair are zero, it means no ticket.
-   * Check for zeroes when iterating over the result. Result.length does not represent
-   * the number of tickets found!
-   */
-  function findOneStopFlights(bytes32 _from, bytes32 _to) public view returns (uint256[2][20]) {
-    uint256[2][20] memory ticketsFound;
-    uint256 i = 0;
-    // Max array length of 1024 is set assuming that we won't use this with more than some
-    // thousands of tickets in the system, as for that we would need to heavily optimize the search
-    Ticket[1024] memory ticketsFrom;
-    uint256 j = 0;
-    Ticket[1024] memory ticketsTo;
-    uint256 k = 0;
-    // Scan through all existing tickets, saving direct flights and saving a list of flights
-    // that have either TO or FROM matching our search. They could be parts of an indirect flight.
-    for (uint256 l = 0; l < tickets.length; l++) {
-      if (tickets[l].tFrom == _from) {
-        // FROM-matching flight found
-        ticketsFrom[j++] = tickets[l];
-        if (tickets[l].tTo == _to) {
-          // Direct flight found
-          ticketsFound[i++] = [tickets[l].tId, 0];
-        }
-      } else if (tickets[l].tTo == _to) {
-        // TO-matching flight found
-        ticketsTo[k++] = tickets[l];
-      }
-    }
-    // Scan through the saved FROM-matching flights and find where their TO matches with
-    // the FROM of a TO-matching flight from the second array. It means a one-stop flight found.
-    for (l = 0; l < ticketsFrom.length; l++) {
-      // It is a fixed-size array, so tickets end when we see zero instead of a ticket ID
-      if (ticketsFrom[l].tId == 0) {
-        break;
-      }
-      // More iterators Mom. Oh yes, spread that shit all over...
-      for (uint256 m = 0; m < ticketsTo.length; m++) {
-        if (ticketsTo[m].tId == 0) {
-          break;
-        }
-        // Are these two flights connected?
-        if (ticketsTo[m].tFrom == ticketsFrom[l].tTo) {
-          // One-stop flight found
-          ticketsFound[i++] = [ticketsFrom[l].tId, ticketsTo[m].tId];
-        }
-      }
-    }
-    return ticketsFound;
   }
 
 }

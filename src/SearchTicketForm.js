@@ -2,11 +2,16 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import grey from '@material-ui/core/colors/grey';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+
 
 /**
  * A form to search tickets
  * @param onValidate - function to be called to validate the data before submitting
- * @param onSubmit - function to be called to submit the data
+ * @param onSubmit - function to be called to submit the data, with a callback to be called when the data is processed
  */
 class SearchTicketForm extends React.Component {
   constructor(props) {
@@ -18,7 +23,11 @@ class SearchTicketForm extends React.Component {
       sTo: '',
       // errors
       sFromError: '',
-      sToError: ''
+      sToError: '',
+      // switch to search only for direct flights
+      sOnlyDirect: false,
+      // flag to show a loader
+      isProcessing: false
     }
   }
 
@@ -40,25 +49,37 @@ class SearchTicketForm extends React.Component {
     // Extract the data and remove unnecessary spaces on the sides, if any
     let data = {
       sFrom: this.state.sFrom.trim(),
-      sTo: this.state.sTo.trim()
+      sTo: this.state.sTo.trim(),
+      sOnlyDirect: this.state.sOnlyDirect
     };
-    this.setState(data);
+    this.setState({
+      sFrom: data.sFrom,
+      sTo: data.sTo
+    });
     // Validate the data
     let errors = this.props.onValidate(data);
     if (Object.keys(errors).length > 0) {
       // Set errors if any
       this.setState(errors);
     } else {
-      // Submit the data otherwise
-      this.props.onSubmit(data);
+      // Submit the data otherwise and display a loader
+      this.setState({ isProcessing: true });
+      this.props.onSubmit(data, () => {
+        // When the processing is done, remove the loader
+        this.setState({ isProcessing: false });
+      });
     }
   };
+
+  onlyDirectSwitched = e => {
+    this.setState({ sOnlyDirect: e.target.checked });
+  }
 
   render() {
     return (
       <form onSubmit={e => this.onSubmit(e)}>
         <Grid container spacing={24}>
-          <Grid item xs={5}>
+          <Grid item xs={4}>
             <TextField
               name="sFrom"
               placeholder="From City"
@@ -70,7 +91,7 @@ class SearchTicketForm extends React.Component {
               error={this.state.sFromError.length > 0}
             />
           </Grid>
-          <Grid item xs={5}>
+          <Grid item xs={4}>
             <TextField
               name="sTo"
               placeholder="To City"
@@ -83,8 +104,22 @@ class SearchTicketForm extends React.Component {
             />
           </Grid>
           <Grid item xs={2}>
-            <Button type="submit" variant="contained" color="primary" style={{marginTop: 7}}>
-              Search!
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={this.state.sOnlyDirect}
+                  onChange={this.onlyDirectSwitched}
+                  color="primary"
+                />
+              }
+              label="Only direct flights"
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <Button type="submit" variant="contained" color="primary" style={{ marginTop: 7 }}>
+              {this.state.isProcessing ? (
+                <CircularProgress size={20} style={{ color: grey[200] }} />
+              ) : 'Search!'}
             </Button>
           </Grid>
         </Grid>

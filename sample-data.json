@@ -1,0 +1,55 @@
+{
+    "data": [{
+        "airline": {
+            "aName": "AirAsia"
+        },
+        "tickets": [{
+            "tFrom": "Hong Kong",
+            "tTo": "Denpasar",
+            "tPrice": 10,
+            "tQuantity": 150,
+            "tDeparture": 1536573600,
+            "tArrival": 1536589800
+        }, {
+            "tFrom": "Denpasar",
+            "tTo": "Bangkok",
+            "tPrice": 12,
+            "tQuantity": 100,
+            "tDeparture": 1536573600,
+            "tArrival": 1536589800
+        }, {
+            "tFrom": "Bangkok",
+            "tTo": "Chiang Mai",
+            "tPrice": 15,
+            "tQuantity": 200,
+            "tDeparture": 1536573600,
+            "tArrival": 1536589800
+        }]
+    }, {
+        "airline": {
+            "aName": "Emirates Airlines"
+        },
+        "tickets": [{
+            "tFrom": "Dubai",
+            "tTo": "Bangkok",
+            "tPrice": 25,
+            "tQuantity": 100,
+            "tDeparture": 1536573600,
+            "tArrival": 1536589800
+        }, {
+            "tFrom": "Madrid",
+            "tTo": "Dubai",
+            "tPrice": 21,
+            "tQuantity": 120,
+            "tDeparture": 1536573600,
+            "tArrival": 1536589800
+        }, {
+            "tFrom": "Moscow",
+            "tTo": "Dubai",
+            "tPrice": 15,
+            "tQuantity": 145,
+            "tDeparture": 1536573600,
+            "tArrival": 1536589800
+        }]
+    }]
+}

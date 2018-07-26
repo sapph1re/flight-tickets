@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom"
+    "test": "node scripts/test.js --env=jsdom",
+    "populate": "node scripts/populate.js"
   },
   "repository": {
     "type": "git",

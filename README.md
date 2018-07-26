@@ -40,7 +40,13 @@ truffle compile
 truffle migrate
 ```
 
-5. Run the frontend
+5. Populate the contract with sample data. This step is optional. Do it if you want to have some data to play with. Otherwise you can add all airlines and tickets by yourself.
+
+```
+npm run populate
+```
+
+6. Run the frontend
 
 ```
 npm run start

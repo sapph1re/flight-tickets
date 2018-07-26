@@ -46,13 +46,13 @@ contract FlightTickets is Ownable {
 
   // Storage of airlines
   Airline[] public airlines;  // The list of airlines
-  uint256 private aIdLast;  // Last airline ID generated, used for autoincrementing
+  uint256 public aIdLast;  // Last airline ID generated, used for autoincrementing
   mapping(uint256 => ArrayIndex) private airlineIdIndex;  // Index to find Airline by its ID
   mapping(bytes32 => bool) private airlineNameExists;  // To keep track of which airline names are taken
 
   // Storage of tickets
   Ticket[] public tickets;  // The list of tickets
-  uint256 private tIdLast;  // Last ticket ID generated, used for autoincrementing
+  uint256 public tIdLast;  // Last ticket ID generated, used for autoincrementing
   mapping(uint256 => ArrayIndex) private ticketIdIndex;  // Index to find Ticket by its ID
   mapping(uint256 => uint256[]) private ticketsByAirline;  // To find list of Ticket IDs by their Airline ID
   // The following is a two-dimensional index to find a certain entry in an array ticketsByAirline[aId]
@@ -113,6 +113,24 @@ contract FlightTickets is Ownable {
    */
   function getAirlinesCount() public view returns (uint256) {
     return airlines.length;
+  }
+
+  /**
+   * @notice Get N-th ticket of a given airline
+   * @param _aId ID of the airline
+   * @param _index Index of the item to get (the N)
+   * @return Ticket data
+   */
+  function getTicketByAirline(uint256 _aId, uint256 _index) public view returns (
+    uint256 tId, uint256 aId, bytes32 tFrom, bytes32 tTo, uint256 tPrice,
+    uint256 tQuantity, uint256 tDeparture, uint256 tArrival
+  ) {
+    uint256 _tId = ticketsByAirline[_aId][_index];
+    Ticket memory ticket = tickets[ticketIdIndex[_tId].index];
+    return (
+      ticket.tId, ticket.aId, ticket.tFrom, ticket.tTo, ticket.tPrice,
+      ticket.tQuantity, ticket.tDeparture, ticket.tArrival
+    );
   }
 
   /**
@@ -212,6 +230,8 @@ contract FlightTickets is Ownable {
   ) public onlyAirlineOwner(_aId) {
     // make sure departure & arrival times are valid
     require(_tQuantity > 0, "Quantity must be positive");
+    // yes, we are using block time here, but we don't care about the 30-seconds
+    // variability, besides it's just a validation and not a crucial part of logic
     require(_tDeparture > now, "Departure time is in the past");
     require(_tArrival > _tDeparture, "Arrival time is before departure");
     // generate new ticket ID

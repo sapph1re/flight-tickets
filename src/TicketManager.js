@@ -10,7 +10,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 
 /**
  * A list of airline's tickets with a form to add a new ticket and edit/remove functionality
- * @param airlines - list of airlines
+ * @param airlines - list of airlines owned by the user
  * @param setOnContractReady - function to set a callback to be called when web3 and the contract are ready
  * @param account - address of the user
  */
@@ -70,7 +70,7 @@ class TicketManager extends React.Component {
       let promises = [];
       for (let i = 0; i < ticketsCount; i++) {
         promises.push(
-          this.state.contract.tickets.call(i)
+          this.state.contract.getTicketByAirline.call(aId, i)
         );
       }
       return Promise.all(promises);
@@ -306,7 +306,7 @@ class TicketManager extends React.Component {
 
         <Grid container spacing={24}>
           <Grid item xs={4}>
-            <Paper style={{padding: 10}}>
+            <Paper style={{ padding: 10 }}>
               <TicketForm
                 onValidate={this.ticketValidateSubmit}
                 onSubmit={this.ticketSubmit} />

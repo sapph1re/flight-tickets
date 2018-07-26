@@ -59,6 +59,10 @@ class App extends React.Component {
 
     // Get accounts.
     this.state.web3.eth.getAccounts((error, accounts) => {
+      if (error) {
+        console.log('Failed to get accounts. Error: ', error);
+        return;
+      }
       // Get our main contract
       flightTickets.deployed().then(instance => {
         // Save the instance of the contract and the account
@@ -171,7 +175,7 @@ class App extends React.Component {
         </div>);
     }
     // Make sure the user does not accidentially spend real ETH here
-    // TODO: Remove this block in production
+    // Remove this block in production
     if (this.state.web3.version.network === '1') {
       return (
         <div className="App" style={{ textAlign: 'center', marginTop: 100 }}>

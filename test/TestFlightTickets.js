@@ -133,4 +133,18 @@ contract('FlightTickets', accounts => {
     assert.equal(newCount, count - 1);
   });
 
+  it('finds a direct flight', async () => {
+    await flightTickets.addTicket(AID, 'Bangkok', 'Dubai', web3.toWei(150, 'finney'), 50, 1536589800, 1536607800, { from: AOWNER });
+    await flightTickets.addTicket(AID, 'Dubai', 'London', web3.toWei(100, 'finney'), 50, 1536589800, 1536607800, { from: AOWNER });
+    await flightTickets.addTicket(AID, 'London', 'New York', web3.toWei(200, 'finney'), 50, 1536589800, 1536607800, { from: AOWNER });
+    tickets = await flightTickets.findTickets.call('Dubai', 'London');
+    let _tId = Number(tickets[0]);
+    assert.ok(_tId > 0);
+    let [tId, aId, tFrom, tTo, tPrice, tQuantity, tDeparture, tArrival] = await flightTickets.getTicketById.call(_tId);
+    tFrom = web3.toUtf8(tFrom);
+    tTo = web3.toUtf8(tTo);
+    assert.equal(tFrom, 'Dubai');
+    assert.equal(tTo, 'London');
+  });
+
 });

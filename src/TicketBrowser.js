@@ -36,10 +36,11 @@ class TicketBrowser extends React.Component {
 
   /** Search the tickets via the contract and display the result */
   searchSubmit = (search) => {
-    this.state.contract.findTickets.call(
-      this.state.web3.toHex(search.sFrom),
-      this.state.web3.toHex(search.sTo)
-    ).then(() => {
+    this.props.contract.findTickets.call(
+      this.props.web3.toHex(search.sFrom),
+      this.props.web3.toHex(search.sTo)
+    ).then(results => {
+      console.log(results);
       // Display the tickets found
       this.setState({
         tickets: []

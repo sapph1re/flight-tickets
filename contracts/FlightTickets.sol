@@ -116,6 +116,34 @@ contract FlightTickets is Ownable {
   }
 
   /**
+   * @notice Get the number of tickets from a given airline
+   * @dev Use it in the frontend to iterate over tickets by airline
+   * @param _aId ID of the airline
+   * @return The number of tickets owned by the airline
+   */
+  function getTicketsCount(uint256 _aId) public view returns (uint256) {
+    require(airlineIdIndex[_aId].exists, "Airline does not exist");
+    return ticketsByAirline[_aId].length;
+  }
+
+  /**
+   * @notice Get a certain ticket by its ID
+   * @param _tId ID of the ticket
+   * @return Ticket data
+   */
+  function getTicketById(uint256 _tId) public view returns(
+    uint256 tId, uint256 aId, bytes32 tFrom, bytes32 tTo, uint256 tPrice,
+    uint256 tQuantity, uint256 tDeparture, uint256 tArrival
+  ) {
+    require(ticketIdIndex[_tId].exists, "Ticket does not exist");
+    Ticket memory ticket = tickets[ticketIdIndex[_tId].index];
+    return (
+      ticket.tId, ticket.aId, ticket.tFrom, ticket.tTo, ticket.tPrice,
+      ticket.tQuantity, ticket.tDeparture, ticket.tArrival
+    );
+  }
+
+  /**
    * @notice Get N-th ticket of a given airline
    * @param _aId ID of the airline
    * @param _index Index of the item to get (the N)
@@ -126,11 +154,7 @@ contract FlightTickets is Ownable {
     uint256 tQuantity, uint256 tDeparture, uint256 tArrival
   ) {
     uint256 _tId = ticketsByAirline[_aId][_index];
-    Ticket memory ticket = tickets[ticketIdIndex[_tId].index];
-    return (
-      ticket.tId, ticket.aId, ticket.tFrom, ticket.tTo, ticket.tPrice,
-      ticket.tQuantity, ticket.tDeparture, ticket.tArrival
-    );
+    return getTicketById(_tId);
   }
 
   /**
@@ -200,17 +224,6 @@ contract FlightTickets is Ownable {
     // remove the last element of the array
     airlines.length--;
     emit LogAirlineRemoved(_aId);
-  }
-
-  /**
-   * @notice Get the number of tickets from a given airline
-   * @dev Use it in the frontend to iterate over tickets by airline
-   * @param _aId ID of the airline
-   * @return The number of tickets owned by the airline
-   */
-  function getTicketsCount(uint256 _aId) public view returns (uint256) {
-    require(airlineIdIndex[_aId].exists, "Airline does not exist");
-    return ticketsByAirline[_aId].length;
   }
 
   /**
@@ -310,6 +323,24 @@ contract FlightTickets is Ownable {
     // remove the last element of the array
     tickets.length--;
     emit LogTicketRemoved(_tId);
+  }
+
+  /**
+   * @notice Finds direct flights between two cities
+   * @param _from From where
+   * @param _to To where
+   * @return Fixed-sized array of ticket IDs. Zero value means no ticket. Check for zeroes
+   * when iterating over the result. Result.length does not represent the number of tickets found!
+   */
+  function findTickets(bytes32 _from, bytes32 _to) public view returns (uint256[20]) {
+    uint256[20] memory ticketsFound;
+    uint256 j = 0;
+    for (uint256 i = 0; i < tickets.length; i++) {
+      if (tickets[i].tFrom == _from && tickets[i].tTo == _to) {
+        ticketsFound[j++] = tickets[i].tId;
+      }
+    }
+    return ticketsFound;
   }
 
 }

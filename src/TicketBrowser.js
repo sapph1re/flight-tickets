@@ -5,7 +5,7 @@ import Paper from '@material-ui/core/Paper';
 
 
 function Ticket(props) {
-  const { ticket } = props;
+  const { ticket, web3 } = props;
 
   return (
     <Grid container spacing={8}>
@@ -14,7 +14,7 @@ function Ticket(props) {
       <Grid item xs={2}>{ticket.tTo}</Grid>
       <Grid item xs={3}>
         by {ticket.airline.aName} <br />
-        for {ticket.tPrice} ETH
+        for {web3.fromWei(ticket.tPrice, 'ether')} ETH
       </Grid>
     </Grid >
   );
@@ -34,7 +34,7 @@ function Layover(props) {
 
 
 function Flight(props) {
-  const { flight } = props;
+  const { flight, web3 } = props;
 
   return (
     <Grid container spacing={16}>
@@ -50,7 +50,7 @@ function Flight(props) {
             {j > 0 ? (
               <Layover ticket1={flight.tickets[j - 1]} ticket2={ticket} />
             ) : ''}
-            <Ticket ticket={ticket} />
+            <Ticket ticket={ticket} web3={web3} />
           </div>
         ))}
       </Grid>
@@ -64,7 +64,7 @@ function Flight(props) {
 
 /** Display results of a search */
 function SearchTicketResults(props) {
-  const { resultsReady, flights } = props;
+  const { resultsReady, flights, web3 } = props;
 
   if (resultsReady) {
     if (flights.length === 0) {
@@ -81,7 +81,7 @@ function SearchTicketResults(props) {
           <div>
             {flights.map((flight, i) => (
               <Paper key={`sr-${i}`} style={{ padding: 15, margin: 15 }}>
-                <Flight flight={flight} />
+                <Flight flight={flight} web3={web3} />
               </Paper>
             ))}
           </div>
@@ -119,19 +119,19 @@ class TicketBrowser extends React.Component {
    * @return {Promise} - resolves into a nice object with ticket and airline data
    */
   processTicketData = (data) => {
-    let aId = data[1].toString();
+    let aId = Number(data[1]);
     return this.props.contract.getAirlineById.call(aId).then(result => {
       let airline = {
-        aId: result[0].toString(),
+        aId: Number(result[0]),
         aName: this.props.web3.toUtf8(result[1]),
         aOwner: result[2]
       }
       return {
-        tId: data[0].toString(),
+        tId: Number(data[0]),
         tFrom: this.props.web3.toUtf8(data[2]),
         tTo: this.props.web3.toUtf8(data[3]),
-        tPrice: this.props.web3.fromWei(data[4], 'ether').toFixed(),
-        tQuantity: data[5].toString(),
+        tPrice: parseInt(data[4].toString(), 10),
+        tQuantity: Number(data[5]),
         tDeparture: Number(data[6]),
         tArrival: Number(data[7]),
         airline: airline,
@@ -166,59 +166,87 @@ class TicketBrowser extends React.Component {
       flights: [],
       resultsReady: false
     }, () => {
-      // Call the contract to find the flights
-      let findMethod = (search.sOnlyDirect
-        ? this.props.contract.findDirectFlights
-        : this.props.contract.findOneStopFlights
-      );
-      findMethod.call(
-        this.props.web3.toHex(search.sFrom),
-        this.props.web3.toHex(search.sTo)
-      ).then(results => {
-        for (let i = 0; i < results.length; i++) {
-          let tId1 = Number(results[i][0]);
-          let tId2 = Number(results[i][1]);
-          if (tId1 === 0) {
-            // end of results
-            break;
-          }
-          this.props.contract.getTicketById.call(tId1).then(result => {
-            return this.processTicketData(result);
-          }).then(ticket1 => {
-            if (tId2 === 0) {
-              // this is a direct flight, display it on the page
+      // Find only direct flights
+      if (search.sOnlyDirect) {
+        this.props.contract.findDirectFlights.call(
+          this.props.web3.toHex(search.sFrom),
+          this.props.web3.toHex(search.sTo)
+        ).then(results => {
+          for (let i = 0; i < results.length; i++) {
+            let tId = Number(results[i]);
+            if (tId === 0) {
+              // end of results
+              break;
+            }
+            this.props.contract.getTicketById.call(tId).then(result => {
+              return this.processTicketData(result);
+            }).then(ticket => {
+              // display the result
               this.setState(state => ({
                 flights: [...state.flights, {
                   stops: 0,
-                  priceTotal: ticket1.tPrice,
-                  tickets: [ticket1]
+                  priceTotal: this.props.web3.fromWei(ticket.tPrice, 'ether'),
+                  tickets: [ticket]
                 }]
               }));
-            } else {
-              // this is a one-stop flight, get the second ticket...
-              this.props.contract.getTicketById.call(tId2).then(result => {
-                return this.processTicketData(result);
-              }).then(ticket2 => {
-                let total = (parseFloat(ticket1.tPrice) + parseFloat(ticket2.tPrice)).toFixed();
-                // ...and display it on the page
+            });
+          }
+          onProcessed();
+          return this.setState({
+            resultsReady: true
+          });
+        });
+      // Find direct and one-stop flights
+      } else {
+        this.props.contract.findOneStopFlights.call(
+          this.props.web3.toHex(search.sFrom),
+          this.props.web3.toHex(search.sTo)
+        ).then(results => {
+          for (let i = 0; i < results.length; i++) {
+            let tId1 = Number(results[i][0]);
+            let tId2 = Number(results[i][1]);
+            if (tId1 === 0) {
+              // end of results
+              break;
+            }
+            this.props.contract.getTicketById.call(tId1).then(result => {
+              return this.processTicketData(result);
+            }).then(ticket1 => {
+              if (tId2 === 0) {
+                // this is a direct flight, display it on the page
                 this.setState(state => ({
                   flights: [...state.flights, {
-                    stops: 1,
-                    priceTotal: total,
-                    tickets: [ticket1, ticket2]
+                    stops: 0,
+                    priceTotal: this.props.web3.fromWei(ticket1.tPrice, 'ether'),
+                    tickets: [ticket1]
                   }]
                 }));
-              });
-            }
+              } else {
+                // this is a one-stop flight, get the second ticket...
+                this.props.contract.getTicketById.call(tId2).then(result => {
+                  return this.processTicketData(result);
+                }).then(ticket2 => {
+                  let totalPrice = ticket1.tPrice + ticket2.tPrice;
+                  // ...and display it on the page
+                  this.setState(state => ({
+                    flights: [...state.flights, {
+                      stops: 1,
+                      priceTotal: this.props.web3.fromWei(totalPrice, 'ether'),
+                      tickets: [ticket1, ticket2]
+                    }]
+                  }));
+                });
+              }
+            });
+          }
+          onProcessed();
+          return this.setState({
+            resultsReady: true
           });
-        }
-        onProcessed();
-        return this.setState({
-          resultsReady: true
+        }).catch(error => {
+          console.log(error);
         });
-      }).catch(error => {
-        console.log(error);
-      });
+      }
     });
   }
 
@@ -238,6 +266,7 @@ class TicketBrowser extends React.Component {
             <SearchTicketResults
               resultsReady={this.state.resultsReady}
               flights={this.state.flights}
+              web3={this.props.web3}
             />
           </Grid>
         </Grid>

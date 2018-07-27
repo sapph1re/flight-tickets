@@ -125,7 +125,7 @@ contract('FlightTickets', accounts => {
     let newPrice = TPRICE * 2;
     let newQuantity = TQUANTITY - 50;
     await flightTickets.editTicket(TID, newPrice, newQuantity, { from: AOWNER });
-    let [tId, aId, tFrom, tTo, tPrice, tQuantity, tDeparture, tArrival] = await flightTickets.tickets.call(0);
+    let [, , , , tPrice, tQuantity, ,] = await flightTickets.tickets.call(0);
     assert.equal(tPrice, newPrice);
     assert.equal(tQuantity, newQuantity);
   });
@@ -153,11 +153,11 @@ contract('FlightTickets', accounts => {
       toUTCTimestamp('2018-12-11 07:00'), toUTCTimestamp('2018-12-11 15:00'),
       { from: AOWNER }
     );
-    let when = Date.parse('2018-12-10')/1000;
+    let when = Date.parse('2018-12-10') / 1000;
     tickets = await flightTickets.findDirectFlights.call('Dubai', 'London', when);
     let _tId = Number(tickets[0]);
     assert.ok(_tId > 0);
-    let [tId, aId, tFrom, tTo, tPrice, tQuantity, tDeparture, tArrival] = await flightTickets.getTicketById.call(_tId);
+    let [, , tFrom, tTo, , , ,] = await flightTickets.getTicketById.call(_tId);
     tFrom = web3.toUtf8(tFrom);
     tTo = web3.toUtf8(tTo);
     assert.equal(tFrom, 'Dubai');
@@ -165,14 +165,14 @@ contract('FlightTickets', accounts => {
   });
 
   it('finds a one-stop flight', async () => {
-    let when = Date.parse('2018-12-10')/1000;
+    let when = Date.parse('2018-12-10') / 1000;
     flights = await flightTickets.findOneStopFlights.call('Bangkok', 'London', when);
     let [_tId1, _tId2] = flights[0];
     _tId1 = Number(_tId1);
     _tId2 = Number(_tId2);
     assert.ok(_tId1 > 0 && _tId2 > 0);
-    let [tId1, aId1, tFrom1, tTo1, tPrice1, tQuantity1, tDeparture1, tArrival1] = await flightTickets.getTicketById.call(_tId1);
-    let [tId2, aId2, tFrom2, tTo2, tPrice2, tQuantity2, tDeparture2, tArrival2] = await flightTickets.getTicketById.call(_tId2);
+    let [, , tFrom1, tTo1, , , ,] = await flightTickets.getTicketById.call(_tId1);
+    let [, , tFrom2, tTo2, , , ,] = await flightTickets.getTicketById.call(_tId2);
     tFrom1 = web3.toUtf8(tFrom1);
     tTo1 = web3.toUtf8(tTo1);
     tFrom2 = web3.toUtf8(tFrom2);
@@ -180,6 +180,44 @@ contract('FlightTickets', accounts => {
     assert.equal(tFrom1, 'Bangkok');
     assert.equal(tTo2, 'London');
     assert.equal(tTo1, tFrom2);
+  });
+
+  it('books a direct flight', async () => {
+    let [tId, aId, , , tPrice, tQuantity, ,] = await flightTickets.tickets.call(0);
+    let [, , aOwner] = await flightTickets.getAirlineById.call(aId);
+    let aBalance = await web3.eth.getBalance(aOwner);
+    await flightTickets.bookFlight([tId, 0], 'Roman', 'Vinogradov', {from: accounts[0], value: tPrice});
+    let aNewBalance = await web3.eth.getBalance(aOwner);
+    assert.equal(aNewBalance - aBalance, tPrice);
+    let [, , , , , tNewQuantity, ,] = await flightTickets.tickets.call(0);
+    assert.equal(tNewQuantity, tQuantity - 1);
+  });
+
+  it('books a one-stop flight', async () => {
+    await flightTickets.addAirline('Third Airline', accounts[5], { from: accounts[0] });
+    aIdNew = await flightTickets.aIdLast.call();
+    await flightTickets.addTicket(
+      aIdNew, 'Bangkok', 'Dubai', web3.toWei(250, 'finney'), 30,
+      toUTCTimestamp('2018-12-10 10:00'), toUTCTimestamp('2018-12-10 15:00'),
+      { from: accounts[5] }
+    );
+    tIdNew = await flightTickets.tIdLast.call();
+    let [tId1, aId1, , , tPrice1, tQuantity1, ,] = await flightTickets.tickets.call(0);
+    let [tId2, aId2, , , tPrice2, tQuantity2, ,] = await flightTickets.getTicketById(tIdNew);
+    let [, , aOwner1] = await flightTickets.getAirlineById.call(aId1);
+    let [, , aOwner2] = await flightTickets.getAirlineById.call(aId2);
+    let aBalance1 = await web3.eth.getBalance(aOwner1);
+    let aBalance2 = await web3.eth.getBalance(aOwner2);
+    let total = Number(tPrice1)+Number(tPrice2);
+    await flightTickets.bookFlight([tId1, tId2], 'Roman', 'Vinogradov', {from: accounts[0], value: total});
+    let aNewBalance1 = await web3.eth.getBalance(aOwner1);
+    let aNewBalance2 = await web3.eth.getBalance(aOwner2);
+    assert.equal(aNewBalance1 - aBalance1, tPrice1);
+    assert.equal(aNewBalance2 - aBalance2, tPrice2);
+    let [, , , , , tNewQuantity1, ,] = await flightTickets.getTicketById(tId1);
+    let [, , , , , tNewQuantity2, ,] = await flightTickets.getTicketById(tId2);
+    assert.equal(tNewQuantity1, tQuantity1 - 1);
+    assert.equal(tNewQuantity2, tQuantity2 - 1);
   });
 
 });

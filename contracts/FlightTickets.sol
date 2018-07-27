@@ -75,6 +75,13 @@ contract FlightTickets is Ownable {
   );
   event LogTicketUpdated(uint256 indexed tId, uint256 newTPrice, uint256 newTQuantity);
   event LogTicketRemoved(uint256 indexed tId);
+  // When a ticket is bought
+  event LogTicketPurchased(
+    uint256 indexed tId,
+    address customer,
+    string passengerFirstName,
+    string passengerLastName
+  );
 
   /**
    * @dev Make sure the caller is the owner of the airline
@@ -100,6 +107,58 @@ contract FlightTickets is Ownable {
     // make sure the caller is the owner of the airline the ticket belongs to
     require(airline.aOwner == msg.sender, "Not the ticket owner");
     _;
+  }
+
+  /** We don't want to accept payments without booking a specific flight */
+  function () public payable {
+    revert();
+  }
+
+  /**
+   * @notice Book a flight, which means buying the tickets this flight consists of.
+   * A direct flight has only one ticket, a one-stop flight has two tickets.
+   * Sufficient ETH must be provided with the transaction to cover the price of the tickets.
+   * @param _tIds List of ticket IDs. If second item is zero, only one ticket will be bought.
+   */
+  function bookFlight(uint256[2] _tIds, string _firstName, string _lastName) public payable {
+    // Find the first ticket, it is required
+    require(ticketIdIndex[_tIds[0]].exists, "Ticket does not exist");
+    Ticket storage ticket1 = tickets[ticketIdIndex[_tIds[0]].index];
+    // Find the airline that owns it
+    require(airlineIdIndex[ticket1.aId].exists, "Airline does not exist");
+    Airline storage airline1 = airlines[airlineIdIndex[ticket1.aId].index];
+    // Check the seats available
+    require(ticket1.tQuantity > 0, "No seats available");
+    if (_tIds[1] != 0) {
+      // Find the second ticket
+      require(ticketIdIndex[_tIds[1]].exists, "Ticket does not exist");
+      Ticket storage ticket2 = tickets[ticketIdIndex[_tIds[1]].index];
+      // Make sure the customer has sent enough ETH
+      require(msg.value >= ticket1.tPrice.add(ticket2.tPrice), "Insufficient funds");
+      // Check the seats available
+      require(ticket2.tQuantity > 0, "No seats available");
+      // Find the second ticket's airline
+      require(airlineIdIndex[ticket2.aId].exists, "Airline does not exist");
+      Airline storage airline2 = airlines[airlineIdIndex[ticket2.aId].index];
+      // Reduce the number of seats available
+      ticket1.tQuantity--;
+      ticket2.tQuantity--;
+      // Save information about the purchase
+      emit LogTicketPurchased(ticket1.tId, msg.sender, _firstName, _lastName);
+      emit LogTicketPurchased(ticket2.tId, msg.sender, _firstName, _lastName);
+      // Send the money to the airline owners
+      airline1.aOwner.transfer(ticket1.tPrice);
+      airline2.aOwner.transfer(ticket2.tPrice);
+    } else {
+      // There is only one ticket to buy
+      require(msg.value >= ticket1.tPrice, "Insufficient funds");
+      // Reduce the number of seats available
+      ticket1.tQuantity--;
+      // Save information about the purchase
+      emit LogTicketPurchased(ticket1.tId, msg.sender, _firstName, _lastName);
+      // Send the money to the airline owners
+      airline1.aOwner.transfer(ticket1.tPrice);
+    }
   }
 
   /**

@@ -68,9 +68,11 @@ Feel free to play around with airlines and their owners in the admin panel, as w
 
 The tests cover:
 * ownership of the contract and authorization of access
-* add/edit/remove operations for the data
+* add/edit/remove operations for airlines and for tickets
 * verification of the data stored
 * input data validation
+* searching for tickets
+* buying tickets
 
 To run the tests:
 ```

@@ -100,10 +100,10 @@ contract FlightTickets is Ownable {
   modifier onlyTicketOwner(uint256 _tId) {
     // find the ticket
     require(ticketIdIndex[_tId].exists, "Ticket does not exist");
-    Ticket memory ticket = tickets[ticketIdIndex[_tId].index];
+    Ticket storage ticket = tickets[ticketIdIndex[_tId].index];
     // find the airline
     require(airlineIdIndex[ticket.aId].exists, "Airline does not exist anymore");
-    Airline memory airline = airlines[airlineIdIndex[ticket.aId].index];
+    Airline storage airline = airlines[airlineIdIndex[ticket.aId].index];
     // make sure the caller is the owner of the airline the ticket belongs to
     require(airline.aOwner == msg.sender, "Not the ticket owner");
     _;
@@ -199,7 +199,7 @@ contract FlightTickets is Ownable {
     address aOwner
   ) {
     require(airlineIdIndex[_aId].exists, "Airline does not exist");
-    Airline memory airline = airlines[airlineIdIndex[_aId].index];
+    Airline storage airline = airlines[airlineIdIndex[_aId].index];
     return (airline.aId, airline.aName, airline.aOwner);
   }
 
@@ -234,10 +234,16 @@ contract FlightTickets is Ownable {
     )
   {
     require(ticketIdIndex[_tId].exists, "Ticket does not exist");
-    Ticket memory ticket = tickets[ticketIdIndex[_tId].index];
+    Ticket storage ticket = tickets[ticketIdIndex[_tId].index];
     return (
-      ticket.tId, ticket.aId, ticket.tFrom, ticket.tTo, ticket.tPrice,
-      ticket.tQuantity, ticket.tDeparture, ticket.tArrival
+      ticket.tId,
+      ticket.aId,
+      ticket.tFrom,
+      ticket.tTo,
+      ticket.tPrice,
+      ticket.tQuantity,
+      ticket.tDeparture,
+      ticket.tArrival
     );
   }
 
@@ -283,7 +289,7 @@ contract FlightTickets is Ownable {
     uint256[20] memory ticketsFound;
     uint256 i = 0;
     for (uint256 j = 0; j < tickets.length; j++) {
-      Ticket memory t = tickets[j];
+      Ticket storage t = tickets[j];
       if (t.tFrom == _from && t.tTo == _to && t.tDeparture >= _when && t.tDeparture < _when + 24*60*60) {
         ticketsFound[i++] = t.tId;
         // When the resulting array is full, stop searching
@@ -324,7 +330,7 @@ contract FlightTickets is Ownable {
     // Scan through all existing tickets, saving direct flights and saving a list of flights
     // that have either TO or FROM matching our search. They could be parts of an indirect flight.
     for (uint256 l = 0; l < tickets.length; l++) {
-      Ticket memory t = tickets[l];
+      Ticket storage t = tickets[l];
       if (t.tFrom == _from && t.tDeparture >= _when && t.tDeparture < _when + 24*60*60) {
         // FROM-matching flight found
         ticketsFrom[j++] = t;
@@ -460,7 +466,14 @@ contract FlightTickets is Ownable {
     tIdLast = _tId;
     // add a new Ticket record to tickets array and save its index in the array
     Ticket memory ticket = Ticket(
-      _tId, _aId, _tFrom, _tTo, _tPrice, _tQuantity, _tDeparture, _tArrival
+      _tId,
+      _aId,
+      _tFrom,
+      _tTo,
+      _tPrice,
+      _tQuantity,
+      _tDeparture,
+      _tArrival
     );
     uint256 _index = tickets.push(ticket) - 1;
     ticketIdIndex[_tId].exists = true;
@@ -471,7 +484,14 @@ contract FlightTickets is Ownable {
     ticketsByAirlineIndex[_aId][_tId].exists = true;
     ticketsByAirlineIndex[_aId][_tId].index = _index2;
     emit LogTicketAdded(
-      _tId, _aId, _tFrom, _tTo, _tPrice, _tQuantity, _tDeparture, _tArrival
+      _tId,
+      _aId,
+      _tFrom,
+      _tTo,
+      _tPrice,
+      _tQuantity,
+      _tDeparture,
+      _tArrival
     );
   }
 

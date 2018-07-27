@@ -12,7 +12,6 @@ import FlightIcon from '@material-ui/icons/Flight';
 import ListIcon from '@material-ui/icons/List';
 
 import './css/oswald.css'
-import './css/open-sans.css'
 import './App.css'
 
 

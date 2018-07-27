@@ -110,7 +110,7 @@ class EditableTable extends React.Component {
     const { editIdx, startEditing, finishEditing, cancelEditing, handleRemove } = this.props;
 
     return (
-      <div>
+      <div class="action-buttons">
         {editIdx === rowIdx ? (
           <span>
             <Tooltip title="Save">

@@ -19,9 +19,9 @@ function formatDuration(seconds) {
   let hours = Math.floor(seconds / 3600);
   let remainder = seconds % 3600;
   let minutes = Math.floor(remainder / 60);
-  let str = hours+'h';
-  if (minutes > 0){
-    str += ' '+minutes+'min';
+  let str = hours + 'h';
+  if (minutes > 0) {
+    str += ' ' + minutes + 'min';
   }
   return str;
 }
@@ -32,18 +32,22 @@ function Ticket(props) {
 
   return (
     <Grid container spacing={8}>
-      <Grid item xs={2}>
-        {ticket.tFrom} <br />
-        {formatDate(ticket.tDeparture)}
+      <Grid item xs={3}>
+        <div class="city">{ticket.tFrom}</div>
+        <div class="datetime">{formatDate(ticket.tDeparture)}</div>
       </Grid>
-      <Grid item xs={1}> -> </Grid>
-      <Grid item xs={2}>
-        {ticket.tTo} <br />
-        {formatDate(ticket.tArrival)}
+      <Grid item xs={1}>
+        <div class="arrow">&#8594;</div>
       </Grid>
       <Grid item xs={3}>
-        by {ticket.airline.aName} <br />
-        for {web3.fromWei(ticket.tPrice, 'ether')} ETH
+        <div class="city">{ticket.tTo}</div>
+        <div class="datetime">{formatDate(ticket.tArrival)}</div>
+      </Grid>
+      <Grid item xs={3}>
+        <div class="airline-and-price">
+          <div>by <span class="airline">{ticket.airline.aName}</span></div>
+          <div>for <span class="price">{web3.fromWei(ticket.tPrice, 'ether')} ETH</span></div>
+        </div>
       </Grid>
     </Grid >
   );
@@ -55,9 +59,7 @@ function Layover(props) {
 
   let layover = formatDuration(ticket2.tDeparture - ticket1.tArrival);
   return (
-    <div>
-      Layover in {ticket1.tTo} for {layover}
-    </div>
+    <div class="layover">Layover in {ticket1.tTo} for {layover}</div>
   );
 }
 
@@ -69,23 +71,27 @@ function Flight(props) {
   return (
     <Grid container spacing={16}>
       <Grid item xs={2}>
-        {flight.stops === 0 ? 'Direct flight' : 'Stops: ' + flight.stops}
+        <div class="stops">{flight.stops === 0 ? 'Direct flight' : 'Stops: ' + flight.stops}</div>
+        <div class="duration">Duration: {duration}</div>
       </Grid>
-      <Grid item xs={2}>
-        Duration: {duration}
-      </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={8}>
         {flight.tickets.map((ticket, j) => (
           <div key={`srt-${j}`}>
             {j > 0 ? (
-              <Layover ticket1={flight.tickets[j - 1]} ticket2={ticket} />
+              <Grid container spacing={8}>
+                <Grid item xs={6}>
+                  <Layover ticket1={flight.tickets[j - 1]} ticket2={ticket} />
+                </Grid>
+              </Grid>
             ) : ''}
             <Ticket ticket={ticket} web3={web3} />
           </div>
         ))}
       </Grid>
       <Grid item xs={2}>
-        Total: {flight.priceTotal} ETH
+        <div class="total">
+          Total: <span class="price">{flight.priceTotal} ETH</span>
+        </div>
       </Grid>
     </Grid>
   );

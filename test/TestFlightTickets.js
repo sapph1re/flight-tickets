@@ -9,6 +9,10 @@ async function hasReverted(contractCall) {
   }
 }
 
+function toUTCTimestamp(datestr) {
+  return Date.parse(datestr + '+00:00') / 1000;
+}
+
 contract('FlightTickets', accounts => {
   let flightTickets;
 
@@ -134,10 +138,23 @@ contract('FlightTickets', accounts => {
   });
 
   it('finds a direct flight', async () => {
-    await flightTickets.addTicket(AID, 'Bangkok', 'Dubai', web3.toWei(150, 'finney'), 50, 1536589800, 1536607800, { from: AOWNER });
-    await flightTickets.addTicket(AID, 'Dubai', 'London', web3.toWei(100, 'finney'), 50, 1536589800, 1536607800, { from: AOWNER });
-    await flightTickets.addTicket(AID, 'London', 'New York', web3.toWei(200, 'finney'), 50, 1536589800, 1536607800, { from: AOWNER });
-    tickets = await flightTickets.findDirectFlights.call('Dubai', 'London');
+    await flightTickets.addTicket(
+      AID, 'Bangkok', 'Dubai', web3.toWei(150, 'finney'), 50,
+      toUTCTimestamp('2018-12-10 10:00'), toUTCTimestamp('2018-12-10 15:00'),
+      { from: AOWNER }
+    );
+    await flightTickets.addTicket(
+      AID, 'Dubai', 'London', web3.toWei(100, 'finney'), 50,
+      toUTCTimestamp('2018-12-10 17:00'), toUTCTimestamp('2018-12-10 23:00'),
+      { from: AOWNER }
+    );
+    await flightTickets.addTicket(
+      AID, 'London', 'New York', web3.toWei(200, 'finney'), 50,
+      toUTCTimestamp('2018-12-11 07:00'), toUTCTimestamp('2018-12-11 15:00'),
+      { from: AOWNER }
+    );
+    let when = Date.parse('2018-12-10')/1000;
+    tickets = await flightTickets.findDirectFlights.call('Dubai', 'London', when);
     let _tId = Number(tickets[0]);
     assert.ok(_tId > 0);
     let [tId, aId, tFrom, tTo, tPrice, tQuantity, tDeparture, tArrival] = await flightTickets.getTicketById.call(_tId);
@@ -148,7 +165,8 @@ contract('FlightTickets', accounts => {
   });
 
   it('finds a one-stop flight', async () => {
-    flights = await flightTickets.findOneStopFlights.call('Bangkok', 'London');
+    let when = Date.parse('2018-12-10')/1000;
+    flights = await flightTickets.findOneStopFlights.call('Bangkok', 'London', when);
     let [_tId1, _tId2] = flights[0];
     _tId1 = Number(_tId1);
     _tId2 = Number(_tId2);

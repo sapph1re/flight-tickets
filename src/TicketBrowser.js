@@ -90,7 +90,7 @@ function SearchTicketResults(props) {
       return (
         <div>
           <h2>Results</h2>
-          <div>Sorry, no tickets found :(</div>
+          <div>Sorry, no flights found. Try searching non-direct flights!</div>
         </div>
       );
     } else {
@@ -192,7 +192,8 @@ class TicketBrowser extends React.Component {
       if (search.sOnlyDirect) {
         this.props.contract.findDirectFlights.call(
           this.props.web3.toHex(search.sFrom),
-          this.props.web3.toHex(search.sTo)
+          this.props.web3.toHex(search.sTo),
+          search.sWhen
         ).then(results => {
           for (let i = 0; i < results.length; i++) {
             let tId = Number(results[i]);
@@ -222,7 +223,8 @@ class TicketBrowser extends React.Component {
       } else {
         this.props.contract.findOneStopFlights.call(
           this.props.web3.toHex(search.sFrom),
-          this.props.web3.toHex(search.sTo)
+          this.props.web3.toHex(search.sTo),
+          search.sWhen
         ).then(results => {
           for (let i = 0; i < results.length; i++) {
             let tId1 = Number(results[i][0]);

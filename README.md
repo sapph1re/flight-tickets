@@ -54,6 +54,16 @@ If you want to change the sample data, it's configured in `sample-data.json`.
 npm run start
 ```
 
+7. Play around. Try searching & buying tickets.
+
+Sample data provides flights between the following cities: Dubai, Bangkok, Hong Kong, Tokyo, Singapore, Jakarta, Denpasar. All of them are connected with each other more or less, so you can try to find a flight from any of these cities to any other of them. Try turning "only direct flights" switch on and off.
+
+Make sure to set your flight date anywhere between 04/12/2018 and 07/12/2018, as tickets are provided for these four days.
+
+The first ganache address is the owner of the contract and the admin of the dapp. If you login in to MetaMask with it, you will see the admin panel in the menu. The first address also owns one airline. Two more airlines are owned by the second ganache's address and one airline by the third address. When you're logged in to MetaMask with an address that owns an airline, you will see your airline panel in the menu.
+
+Feel free to play around with airlines and their owners in the admin panel, as well as with the tickets of your airlines in the airline panel.
+
 ## Testing
 
 The tests cover:

@@ -42,13 +42,15 @@ async function populate(flightTickets, accounts) {
       for (let j = 0; j < row.tickets.length; j++) {
         let ticket = row.tickets[j];
         console.log(
-          'Adding ticket: ' + ticket.tFrom + ' - ' + ticket.tTo + ', '
+          'Adding ticket: '+ticket.tDeparture+' ' + ticket.tFrom + ' -> ' + ticket.tTo + ', '
           + ticket.tPrice + ' ETH, ' + ticket.tQuantity + ' seats...'
         );
+        let departure = Date.parse(ticket.tDeparture+'+00:00')/1000;
+        let arrival = Date.parse(ticket.tArrival+'+00:00')/1000;
         await flightTickets.addTicket(
           aId, ticket.tFrom, ticket.tTo,
           web3.toWei(ticket.tPrice, 'ether'), ticket.tQuantity,
-          ticket.tDeparture, ticket.tArrival,
+          departure, arrival,
           { from: aOwner, gas: 500000 }
         );
       }

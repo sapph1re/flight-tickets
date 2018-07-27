@@ -186,7 +186,9 @@ contract('FlightTickets', accounts => {
     let [tId, aId, , , tPrice, tQuantity, ,] = await flightTickets.tickets.call(0);
     let [, , aOwner] = await flightTickets.getAirlineById.call(aId);
     let aBalance = await web3.eth.getBalance(aOwner);
-    await flightTickets.bookFlight([tId, 0], 'Roman', 'Vinogradov', {from: accounts[0], value: tPrice});
+    // sending 1 eth more than needed to test that the change is returned
+    let amount = Number(tPrice) + Number(web3.toWei(1, 'ether'));
+    await flightTickets.bookFlight([tId, 0], 'Roman', 'Vinogradov', { from: accounts[0], value: amount });
     let aNewBalance = await web3.eth.getBalance(aOwner);
     assert.equal(aNewBalance - aBalance, tPrice);
     let [, , , , , tNewQuantity, ,] = await flightTickets.tickets.call(0);
@@ -208,8 +210,9 @@ contract('FlightTickets', accounts => {
     let [, , aOwner2] = await flightTickets.getAirlineById.call(aId2);
     let aBalance1 = await web3.eth.getBalance(aOwner1);
     let aBalance2 = await web3.eth.getBalance(aOwner2);
-    let total = Number(tPrice1)+Number(tPrice2);
-    await flightTickets.bookFlight([tId1, tId2], 'Roman', 'Vinogradov', {from: accounts[0], value: total});
+    // sending 1 eth more than needed to test that the change is returned
+    let total = Number(tPrice1) + Number(tPrice2) + Number(web3.toWei(1, 'ether'));
+    await flightTickets.bookFlight([tId1, tId2], 'Roman', 'Vinogradov', { from: accounts[0], value: total });
     let aNewBalance1 = await web3.eth.getBalance(aOwner1);
     let aNewBalance2 = await web3.eth.getBalance(aOwner2);
     assert.equal(aNewBalance1 - aBalance1, tPrice1);

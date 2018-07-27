@@ -118,6 +118,7 @@ contract FlightTickets is Ownable {
    * @notice Book a flight, which means buying the tickets this flight consists of.
    * A direct flight has only one ticket, a one-stop flight has two tickets.
    * Sufficient ETH must be provided with the transaction to cover the price of the tickets.
+   * Redundant ETH will be returned back to the sender.
    * @param _tIds List of ticket IDs. If second item is zero, only one ticket will be bought.
    */
   function bookFlight(uint256[2] _tIds, string _firstName, string _lastName) public payable {
@@ -129,12 +130,16 @@ contract FlightTickets is Ownable {
     Airline storage airline1 = airlines[airlineIdIndex[ticket1.aId].index];
     // Check the seats available
     require(ticket1.tQuantity > 0, "No seats available");
+    // Check if there's enough ETH for the first ticket
+    require(msg.value >= ticket1.tPrice, "Insufficient funds");
+    uint256 ethLeft = msg.value - ticket1.tPrice;
     if (_tIds[1] != 0) {
       // Find the second ticket
       require(ticketIdIndex[_tIds[1]].exists, "Ticket does not exist");
       Ticket storage ticket2 = tickets[ticketIdIndex[_tIds[1]].index];
-      // Make sure the customer has sent enough ETH
-      require(msg.value >= ticket1.tPrice.add(ticket2.tPrice), "Insufficient funds");
+      // Check if there's enough ETH for the second ticket too
+      require(ethLeft >= ticket2.tPrice, "Insufficient funds");
+      ethLeft -= ticket2.tPrice;
       // Check the seats available
       require(ticket2.tQuantity > 0, "No seats available");
       // Find the second ticket's airline
@@ -151,13 +156,16 @@ contract FlightTickets is Ownable {
       airline2.aOwner.transfer(ticket2.tPrice);
     } else {
       // There is only one ticket to buy
-      require(msg.value >= ticket1.tPrice, "Insufficient funds");
       // Reduce the number of seats available
       ticket1.tQuantity--;
       // Save information about the purchase
       emit LogTicketPurchased(ticket1.tId, msg.sender, _firstName, _lastName);
       // Send the money to the airline owners
       airline1.aOwner.transfer(ticket1.tPrice);
+    }
+    // Send back the change if there is anything left
+    if (ethLeft > 0) {
+      msg.sender.transfer(ethLeft);
     }
   }
 

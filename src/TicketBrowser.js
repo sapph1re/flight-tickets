@@ -2,6 +2,9 @@ import React from 'react';
 import SearchTicketForm from "./SearchTicketForm";
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Radio from '@material-ui/core/Radio';
 
 
 function formatDate(timestamp) {
@@ -33,20 +36,20 @@ function Ticket(props) {
   return (
     <Grid container spacing={8}>
       <Grid item xs={3}>
-        <div class="city">{ticket.tFrom}</div>
-        <div class="datetime">{formatDate(ticket.tDeparture)}</div>
+        <div className="city">{ticket.tFrom}</div>
+        <div className="datetime">{formatDate(ticket.tDeparture)}</div>
       </Grid>
       <Grid item xs={1}>
-        <div class="arrow">&#8594;</div>
+        <div className="arrow">&#8594;</div>
       </Grid>
       <Grid item xs={3}>
-        <div class="city">{ticket.tTo}</div>
-        <div class="datetime">{formatDate(ticket.tArrival)}</div>
+        <div className="city">{ticket.tTo}</div>
+        <div className="datetime">{formatDate(ticket.tArrival)}</div>
       </Grid>
       <Grid item xs={3}>
-        <div class="airline-and-price">
-          <div>by <span class="airline">{ticket.airline.aName}</span></div>
-          <div>for <span class="price">{web3.fromWei(ticket.tPrice, 'ether')} ETH</span></div>
+        <div className="airline-and-price">
+          <div>by <span className="airline">{ticket.airline.aName}</span></div>
+          <div>for <span className="price">{web3.fromWei(ticket.tPrice, 'ether')} ETH</span></div>
         </div>
       </Grid>
     </Grid >
@@ -59,7 +62,7 @@ function Layover(props) {
 
   let layover = formatDuration(ticket2.tDeparture - ticket1.tArrival);
   return (
-    <div class="layover">Layover in {ticket1.tTo} for {layover}</div>
+    <div className="layover">Layover in {ticket1.tTo} for {layover}</div>
   );
 }
 
@@ -71,8 +74,8 @@ function Flight(props) {
   return (
     <Grid container spacing={16}>
       <Grid item xs={2}>
-        <div class="stops">{flight.stops === 0 ? 'Direct flight' : 'Stops: ' + flight.stops}</div>
-        <div class="duration">Duration: {duration}</div>
+        <div className="stops">{flight.stops === 0 ? 'Direct flight' : 'Stops: ' + flight.stops}</div>
+        <div className="duration">Duration: {duration}</div>
       </Grid>
       <Grid item xs={8}>
         {flight.tickets.map((ticket, j) => (
@@ -89,8 +92,8 @@ function Flight(props) {
         ))}
       </Grid>
       <Grid item xs={2}>
-        <div class="total">
-          Total: <span class="price">{flight.priceTotal} ETH</span>
+        <div className="total">
+          Total: <span className="price">{flight.priceTotal} ETH</span>
         </div>
       </Grid>
     </Grid>
@@ -100,7 +103,7 @@ function Flight(props) {
 
 /** Display results of a search */
 function SearchTicketResults(props) {
-  const { resultsReady, flights, web3 } = props;
+  const { resultsReady, flights, web3, sorting, onChangeSorting } = props;
 
   if (resultsReady) {
     if (flights.length === 0) {
@@ -111,9 +114,28 @@ function SearchTicketResults(props) {
         </div>
       );
     } else {
+      switch (sorting) {
+        case 'shortest':
+          flights.sort((a, b) => {
+            let durA = a.tickets[a.tickets.length - 1].tArrival - a.tickets[0].tDeparture;
+            let durB = b.tickets[b.tickets.length - 1].tArrival - b.tickets[0].tDeparture;
+            return durA > durB;
+          });
+          break;
+        case 'cheapest':
+        default:
+          flights.sort((a, b) => (a.priceTotal > b.priceTotal));
+      }
       return (
         <div>
           <h2>Results</h2>
+          <RadioGroup
+            value={sorting}
+            onChange={onChangeSorting}
+          >
+            <FormControlLabel value="cheapest" control={<Radio color="primary" />} label="Cheapest first" />
+            <FormControlLabel value="shortest" control={<Radio color="primary" />} label="Shortest first" />
+          </RadioGroup>
           <div>
             {flights.map((flight, i) => (
               <Paper key={`sr-${i}`} style={{ padding: 15, margin: 15 }}>
@@ -145,7 +167,8 @@ class TicketBrowser extends React.Component {
       // Direct flights consist of only one ticket
       // One-stop flights consist of two tickets
       flights: [],
-      resultsReady: false
+      resultsReady: false,
+      sorting: 'cheapest'
     }
   }
 
@@ -291,6 +314,10 @@ class TicketBrowser extends React.Component {
     });
   }
 
+  onChangeSorting = e => {
+    this.setState({ sorting: e.target.value });
+  }
+
   render() {
     return (
       <div>
@@ -308,6 +335,8 @@ class TicketBrowser extends React.Component {
               resultsReady={this.state.resultsReady}
               flights={this.state.flights}
               web3={this.props.web3}
+              sorting={this.state.sorting}
+              onChangeSorting={this.onChangeSorting}
             />
           </Grid>
         </Grid>

@@ -64,8 +64,14 @@ contract FlightTickets is Ownable {
   event LogAirlineRemoved(uint256 indexed aId);
   // When a ticket is added, changed or deleted
   event LogTicketAdded(
-    uint256 indexed tId, uint256 aId, bytes32 tFrom, bytes32 tTo, uint256 tPrice,
-    uint256 tQuantity, uint256 tDeparture, uint256 tArrival
+    uint256 indexed tId,
+    uint256 aId,
+    bytes32 tFrom,
+    bytes32 tTo,
+    uint256 tPrice,
+    uint256 tQuantity,
+    uint256 tDeparture,
+    uint256 tArrival
   );
   event LogTicketUpdated(uint256 indexed tId, uint256 newTPrice, uint256 newTQuantity);
   event LogTicketRemoved(uint256 indexed tId);
@@ -120,7 +126,11 @@ contract FlightTickets is Ownable {
    * @param _aId ID of the airline
    * @return Airline data
    */
-  function getAirlineById(uint256 _aId) public view returns(uint256 aId, bytes32 aName, address aOwner) {
+  function getAirlineById(uint256 _aId) public view returns(
+    uint256 aId,
+    bytes32 aName,
+    address aOwner
+  ) {
     require(airlineIdIndex[_aId].exists, "Airline does not exist");
     Airline memory airline = airlines[airlineIdIndex[_aId].index];
     return (airline.aId, airline.aName, airline.aOwner);
@@ -142,10 +152,20 @@ contract FlightTickets is Ownable {
    * @param _tId ID of the ticket
    * @return Ticket data
    */
-  function getTicketById(uint256 _tId) public view returns(
-    uint256 tId, uint256 aId, bytes32 tFrom, bytes32 tTo, uint256 tPrice,
-    uint256 tQuantity, uint256 tDeparture, uint256 tArrival
-  ) {
+  function getTicketById(uint256 _tId)
+    public
+    view
+    returns(
+      uint256 tId,
+      uint256 aId,
+      bytes32 tFrom,
+      bytes32 tTo,
+      uint256 tPrice,
+      uint256 tQuantity,
+      uint256 tDeparture,
+      uint256 tArrival
+    )
+  {
     require(ticketIdIndex[_tId].exists, "Ticket does not exist");
     Ticket memory ticket = tickets[ticketIdIndex[_tId].index];
     return (
@@ -160,10 +180,20 @@ contract FlightTickets is Ownable {
    * @param _index Index of the item to get (the N)
    * @return Ticket data
    */
-  function getTicketByAirline(uint256 _aId, uint256 _index) public view returns (
-    uint256 tId, uint256 aId, bytes32 tFrom, bytes32 tTo, uint256 tPrice,
-    uint256 tQuantity, uint256 tDeparture, uint256 tArrival
-  ) {
+  function getTicketByAirline(uint256 _aId, uint256 _index)
+    public
+    view
+    returns (
+      uint256 tId,
+      uint256 aId,
+      bytes32 tFrom,
+      bytes32 tTo,
+      uint256 tPrice,
+      uint256 tQuantity,
+      uint256 tDeparture,
+      uint256 tArrival
+    )
+  {
     uint256 _tId = ticketsByAirline[_aId][_index];
     return getTicketById(_tId);
   }
@@ -178,7 +208,11 @@ contract FlightTickets is Ownable {
    * Zero value means no ticket. Check for zeroes when iterating over the result.
    * result.length does not represent the number of tickets found!
    */
-  function findDirectFlights(bytes32 _from, bytes32 _to, uint256 _when) public view returns (uint256[20]) {
+  function findDirectFlights(bytes32 _from, bytes32 _to, uint256 _when)
+    public
+    view
+    returns (uint256[20])
+  {
     uint256[20] memory ticketsFound;
     uint256 i = 0;
     for (uint256 j = 0; j < tickets.length; j++) {
@@ -207,7 +241,11 @@ contract FlightTickets is Ownable {
    * Check for zeroes when iterating over the result. Result.length does not represent
    * the number of tickets found!
    */
-  function findOneStopFlights(bytes32 _from, bytes32 _to, uint256 _when) public view returns (uint256[2][20]) {
+  function findOneStopFlights(bytes32 _from, bytes32 _to, uint256 _when)
+    public
+    view
+    returns (uint256[2][20])
+  {
     uint256[2][20] memory ticketsFound;
     uint256 i = 0;
     // Max array length of 1024 is set assuming that we won't use this with more than some
@@ -336,8 +374,13 @@ contract FlightTickets is Ownable {
    * @param _tArrival Timestamp of the planned arrival, UTC
    */
   function addTicket(
-    uint256 _aId, bytes32 _tFrom, bytes32 _tTo, uint256 _tPrice,
-    uint256 _tQuantity, uint256 _tDeparture, uint256 _tArrival
+    uint256 _aId,
+    bytes32 _tFrom,
+    bytes32 _tTo,
+    uint256 _tPrice,
+    uint256 _tQuantity,
+    uint256 _tDeparture,
+    uint256 _tArrival
   ) public onlyAirlineOwner(_aId) {
     // make sure departure & arrival times are valid
     require(_tQuantity > 0, "Quantity must be positive");
@@ -371,7 +414,10 @@ contract FlightTickets is Ownable {
    * @param _newTPrice New price of the ticket
    * @param _newTQuantity New number of seats available
    */
-  function editTicket(uint256 _tId, uint256 _newTPrice, uint256 _newTQuantity) public onlyTicketOwner(_tId) {
+  function editTicket(uint256 _tId, uint256 _newTPrice, uint256 _newTQuantity)
+    public
+    onlyTicketOwner(_tId)
+  {
     // update the ticket data
     uint256 _index = ticketIdIndex[_tId].index;
     tickets[_index].tPrice = _newTPrice;

@@ -15,6 +15,17 @@ function formatDate(timestamp) {
   return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
 }
 
+function formatDuration(seconds) {
+  let hours = Math.floor(seconds / 3600);
+  let remainder = seconds % 3600;
+  let minutes = Math.floor(remainder / 60);
+  let str = hours+'h';
+  if (minutes > 0){
+    str += ' '+minutes+'min';
+  }
+  return str;
+}
+
 
 function Ticket(props) {
   const { ticket, web3 } = props;
@@ -42,10 +53,10 @@ function Ticket(props) {
 function Layover(props) {
   const { ticket1, ticket2 } = props;
 
-  let layover = (ticket2.tDeparture - ticket1.tArrival) / 3600;
+  let layover = formatDuration(ticket2.tDeparture - ticket1.tArrival);
   return (
     <div>
-      Layover in {ticket1.tTo} for {layover}h
+      Layover in {ticket1.tTo} for {layover}
     </div>
   );
 }
@@ -54,14 +65,14 @@ function Layover(props) {
 function Flight(props) {
   const { flight, web3 } = props;
 
-  let duration = (flight.tickets[flight.tickets.length-1].tArrival - flight.tickets[0].tDeparture) / 3600;
+  let duration = formatDuration(flight.tickets[flight.tickets.length - 1].tArrival - flight.tickets[0].tDeparture);
   return (
     <Grid container spacing={16}>
       <Grid item xs={2}>
         {flight.stops === 0 ? 'Direct flight' : 'Stops: ' + flight.stops}
       </Grid>
       <Grid item xs={2}>
-        Duration: {duration}h
+        Duration: {duration}
       </Grid>
       <Grid item xs={6}>
         {flight.tickets.map((ticket, j) => (

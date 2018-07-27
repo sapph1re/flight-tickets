@@ -14,6 +14,18 @@ import Tooltip from '@material-ui/core/Tooltip';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 
+function formatDate(timestamp) {
+  const addZero = i => (i < 10 ? "0" + i : i);
+  let d = new Date(timestamp * 1000);
+  let day = addZero(d.getUTCDate());
+  let month = addZero(d.getUTCMonth()+1);
+  let year = addZero(d.getUTCFullYear());
+  let hours = addZero(d.getUTCHours());
+  let minutes = addZero(d.getUTCMinutes());
+  return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+}
+
+
 // Customizing the look of the table cells
 const CustomTableCell = withStyles(theme => ({
   head: {
@@ -66,11 +78,21 @@ class EditableTable extends React.Component {
   renderEditableField(dataColumn, dataRow, rowIdx) {
     const { editIdx, dataErrors, handleChange } = this.props;
 
+    let value = dataRow[dataColumn.prop];
+    switch (dataColumn.type) {
+      case 'datetime':
+        value = formatDate(value);
+        break;
+      case 'text':
+      default:
+        value = value.toString();
+        break;
+    }
     if (dataColumn.editable && editIdx === rowIdx) {
       return (
         <TextField
           name={dataColumn.prop}
-          value={dataRow[dataColumn.prop]}
+          value={value}
           onChange={(e) => handleChange(e, dataColumn.prop, rowIdx)}
           label={dataColumn.name}
           helperText={dataErrors[dataColumn.errorProp]}
@@ -79,7 +101,7 @@ class EditableTable extends React.Component {
         />
       );
     } else {
-      return dataRow[dataColumn.prop].toString();
+      return value;
     }
   };
 

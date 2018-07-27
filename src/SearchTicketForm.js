@@ -21,9 +21,11 @@ class SearchTicketForm extends React.Component {
       // input data
       sFrom: '',
       sTo: '',
+      sWhen: '',
       // errors
       sFromError: '',
       sToError: '',
+      sWhenError: '',
       // switch to search only for direct flights
       sOnlyDirect: false,
       // flag to show a loader
@@ -44,12 +46,14 @@ class SearchTicketForm extends React.Component {
     // Clear the errors first
     this.setState({
       sFromError: '',
-      sToError: ''
+      sToError: '',
+      sWhenError: ''
     });
     // Extract the data and remove unnecessary spaces on the sides, if any
     let data = {
       sFrom: this.state.sFrom.trim(),
       sTo: this.state.sTo.trim(),
+      sWhen: Date.parse(this.state.sWhen)/1000,
       sOnlyDirect: this.state.sOnlyDirect
     };
     this.setState({
@@ -79,7 +83,7 @@ class SearchTicketForm extends React.Component {
     return (
       <form onSubmit={e => this.onSubmit(e)}>
         <Grid container spacing={24}>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <TextField
               name="sFrom"
               placeholder="From City"
@@ -91,7 +95,7 @@ class SearchTicketForm extends React.Component {
               error={this.state.sFromError.length > 0}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <TextField
               name="sTo"
               placeholder="To City"
@@ -101,6 +105,22 @@ class SearchTicketForm extends React.Component {
               onChange={e => this.change(e)}
               helperText={this.state.sToError}
               error={this.state.sToError.length > 0}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <TextField
+              name="sWhen"
+              placeholder="When"
+              label="When"
+              type="date"
+              fullWidth={true}
+              value={this.state.sWhen}
+              onChange={e => this.change(e)}
+              helperText={this.state.sWhenError}
+              error={this.state.sWhenError.length > 0}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </Grid>
           <Grid item xs={2}>
@@ -115,7 +135,7 @@ class SearchTicketForm extends React.Component {
               label="Only direct flights"
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={1}>
             <Button type="submit" variant="contained" color="primary" style={{ marginTop: 7 }}>
               {this.state.isProcessing ? (
                 <CircularProgress size={20} style={{ color: grey[200] }} />

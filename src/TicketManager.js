@@ -122,9 +122,13 @@ class TicketManager extends React.Component {
       errors.tQuantityError = 'Quantity must be positive number';
     }
     let now = Math.floor(new Date().getTime() / 1000);
-    if (isNaN(ticket.tDeparture) || ticket.tDeparture < now) {
+    if (isNaN(ticket.tDeparture)) {
+      errors.tDepartureError = 'Departure time is incorrect';
+    } else if (ticket.tDeparture < now) {
       errors.tDepartureError = 'Departure time is in the past';
-    } else if (isNaN(ticket.tArrival) || ticket.tArrival < ticket.tDeparture) {
+    } else if (isNaN(ticket.tArrival)) {
+      errors.tArrivalError = 'Arrival time is incorrect';
+    } else if (ticket.tArrival < ticket.tDeparture) {
       errors.tArrivalError = 'Arrival time is before departure';
     }
     return errors;
@@ -327,42 +331,49 @@ class TicketManager extends React.Component {
                   name: 'ID',
                   prop: 'tId',
                   editable: false,
+                  type: 'text'
                 },
                 {
                   name: 'From',
                   prop: 'tFrom',
                   editable: false,
-                  errorProp: 'tFromError'
+                  errorProp: 'tFromError',
+                  type: 'text'
                 },
                 {
                   name: 'To',
                   prop: 'tTo',
                   editable: false,
-                  errorProp: 'tToError'
+                  errorProp: 'tToError',
+                  type: 'text'
                 },
                 {
                   name: 'Price, ETH',
                   prop: 'tPrice',
                   editable: true,
-                  errorProp: 'tPriceError'
+                  errorProp: 'tPriceError',
+                  type: 'text'
                 },
                 {
                   name: 'Quantity',
                   prop: 'tQuantity',
                   editable: true,
-                  errorProp: 'tQuantityError'
+                  errorProp: 'tQuantityError',
+                  type: 'text'
                 },
                 {
                   name: 'Departure',
                   prop: 'tDeparture',
                   editable: false,
-                  errorProp: 'tDepartureError'
+                  errorProp: 'tDepartureError',
+                  type: 'datetime'
                 },
                 {
                   name: 'Arrival',
                   prop: 'tArrival',
                   editable: false,
-                  errorProp: 'tArrivalError'
+                  errorProp: 'tArrivalError',
+                  type: 'datetime'
                 }
               ]} />
           </Grid>

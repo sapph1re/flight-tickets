@@ -51,8 +51,8 @@ class TicketForm extends React.Component {
       tTo: this.state.tTo.trim(),
       tPrice: parseFloat(this.state.tPrice),
       tQuantity: parseInt(this.state.tQuantity, 10),
-      tDeparture: parseInt(this.state.tDeparture, 10),
-      tArrival: parseInt(this.state.tArrival, 10)
+      tDeparture: Date.parse(this.state.tDeparture+'+00:00')/1000,
+      tArrival: Date.parse(this.state.tArrival+'+00:00')/1000
     };
     // Validate the data
     let errors = this.props.onValidate(data);
@@ -136,11 +136,15 @@ class TicketForm extends React.Component {
               name="tDeparture"
               placeholder="Departure Timestamp"
               label="Departure"
+              type="datetime-local"
               fullWidth={true}
               value={this.state.tDeparture}
               onChange={e => this.change(e)}
               helperText={this.state.tDepartureError}
               error={this.state.tDepartureError.length > 0}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </Grid>
           <Grid item xs={6}>
@@ -148,11 +152,15 @@ class TicketForm extends React.Component {
               name="tArrival"
               placeholder="Arrival Timestamp"
               label="Arrival"
+              type="datetime-local"
               fullWidth={true}
               value={this.state.tArrival}
               onChange={e => this.change(e)}
               helperText={this.state.tArrivalError}
               error={this.state.tArrivalError.length > 0}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </Grid>
         </Grid>

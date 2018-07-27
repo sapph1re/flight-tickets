@@ -218,18 +218,21 @@ class AirlineList extends React.Component {
                   name: 'ID',
                   prop: 'aId',
                   editable: false,
+                  type: 'text'
                 },
                 {
                   name: 'Airline Name',
                   prop: 'aName',
                   editable: true,
-                  errorProp: 'aNameError'
+                  errorProp: 'aNameError',
+                  type: 'text'
                 },
                 {
                   name: 'Owner Address',
                   prop: 'aOwner',
                   editable: true,
-                  errorProp: 'aOwnerError'
+                  errorProp: 'aOwnerError',
+                  type: 'text'
                 }
               ]} />
           </Grid>

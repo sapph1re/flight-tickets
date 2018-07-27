@@ -4,14 +4,32 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 
 
+function formatDate(timestamp) {
+  const addZero = i => (i < 10 ? "0" + i : i);
+  let d = new Date(timestamp * 1000);
+  let day = addZero(d.getUTCDate());
+  let month = addZero(d.getUTCMonth() + 1);
+  let year = addZero(d.getUTCFullYear());
+  let hours = addZero(d.getUTCHours());
+  let minutes = addZero(d.getUTCMinutes());
+  return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+}
+
+
 function Ticket(props) {
   const { ticket, web3 } = props;
 
   return (
     <Grid container spacing={8}>
-      <Grid item xs={2}>{ticket.tFrom}</Grid>
+      <Grid item xs={2}>
+        {ticket.tFrom} <br />
+        {formatDate(ticket.tDeparture)}
+      </Grid>
       <Grid item xs={1}> -> </Grid>
-      <Grid item xs={2}>{ticket.tTo}</Grid>
+      <Grid item xs={2}>
+        {ticket.tTo} <br />
+        {formatDate(ticket.tArrival)}
+      </Grid>
       <Grid item xs={3}>
         by {ticket.airline.aName} <br />
         for {web3.fromWei(ticket.tPrice, 'ether')} ETH
@@ -27,7 +45,7 @@ function Layover(props) {
   let layover = (ticket2.tDeparture - ticket1.tArrival) / 3600;
   return (
     <div>
-      Layover in {ticket1.tTo} for {layover} h
+      Layover in {ticket1.tTo} for {layover}h
     </div>
   );
 }
@@ -36,13 +54,14 @@ function Layover(props) {
 function Flight(props) {
   const { flight, web3 } = props;
 
+  let duration = (flight.tickets[flight.tickets.length-1].tArrival - flight.tickets[0].tDeparture) / 3600;
   return (
     <Grid container spacing={16}>
       <Grid item xs={2}>
         {flight.stops === 0 ? 'Direct flight' : 'Stops: ' + flight.stops}
       </Grid>
       <Grid item xs={2}>
-        Duration: 0
+        Duration: {duration}h
       </Grid>
       <Grid item xs={6}>
         {flight.tickets.map((ticket, j) => (
@@ -152,6 +171,9 @@ class TicketBrowser extends React.Component {
     if (search.sTo.length === 0) {
       errors.sToError = 'Where are you travelling to?';
     }
+    if (isNaN(search.sWhen)) {
+      errors.sWhenError = 'Choose a date';
+    }
     return errors;
   }
 
@@ -196,7 +218,7 @@ class TicketBrowser extends React.Component {
             resultsReady: true
           });
         });
-      // Find direct and one-stop flights
+        // Find direct and one-stop flights
       } else {
         this.props.contract.findOneStopFlights.call(
           this.props.web3.toHex(search.sFrom),

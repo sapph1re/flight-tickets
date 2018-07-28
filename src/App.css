@@ -72,3 +72,11 @@ h1, h2, h3 {
 .action-buttons {
   white-space: nowrap;
 }
+
+.book-button, .buy-now-button {
+  margin: 10px 15px !important;
+}
+
+.booking-details-field {
+  width: 50%;
+}

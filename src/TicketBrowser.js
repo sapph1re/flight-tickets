@@ -1,5 +1,7 @@
 import React from 'react';
 import SearchTicketForm from "./SearchTicketForm";
+import BookFlightDialog from './BookFlightDialog';
+import FlightSummary from './FlightSummary';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -7,103 +9,9 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 
 
-function formatDate(timestamp) {
-  const addZero = i => (i < 10 ? "0" + i : i);
-  let d = new Date(timestamp * 1000);
-  let day = addZero(d.getUTCDate());
-  let month = addZero(d.getUTCMonth() + 1);
-  let year = addZero(d.getUTCFullYear());
-  let hours = addZero(d.getUTCHours());
-  let minutes = addZero(d.getUTCMinutes());
-  return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
-}
-
-function formatDuration(seconds) {
-  let hours = Math.floor(seconds / 3600);
-  let remainder = seconds % 3600;
-  let minutes = Math.floor(remainder / 60);
-  let str = hours + 'h';
-  if (minutes > 0) {
-    str += ' ' + minutes + 'min';
-  }
-  return str;
-}
-
-
-function Ticket(props) {
-  const { ticket, web3 } = props;
-
-  return (
-    <Grid container spacing={8}>
-      <Grid item xs={3}>
-        <div className="city">{ticket.tFrom}</div>
-        <div className="datetime">{formatDate(ticket.tDeparture)}</div>
-      </Grid>
-      <Grid item xs={1}>
-        <div className="arrow">&#8594;</div>
-      </Grid>
-      <Grid item xs={3}>
-        <div className="city">{ticket.tTo}</div>
-        <div className="datetime">{formatDate(ticket.tArrival)}</div>
-      </Grid>
-      <Grid item xs={3}>
-        <div className="airline-and-price">
-          <div>by <span className="airline">{ticket.airline.aName}</span></div>
-          <div>for <span className="price">{web3.fromWei(ticket.tPrice, 'ether')} ETH</span></div>
-        </div>
-      </Grid>
-    </Grid >
-  );
-}
-
-
-function Layover(props) {
-  const { ticket1, ticket2 } = props;
-
-  let layover = formatDuration(ticket2.tDeparture - ticket1.tArrival);
-  return (
-    <div className="layover">Layover in {ticket1.tTo} for {layover}</div>
-  );
-}
-
-
-function Flight(props) {
-  const { flight, web3 } = props;
-
-  let duration = formatDuration(flight.tickets[flight.tickets.length - 1].tArrival - flight.tickets[0].tDeparture);
-  return (
-    <Grid container spacing={16}>
-      <Grid item xs={2}>
-        <div className="stops">{flight.stops === 0 ? 'Direct flight' : 'Stops: ' + flight.stops}</div>
-        <div className="duration">Duration: {duration}</div>
-      </Grid>
-      <Grid item xs={8}>
-        {flight.tickets.map((ticket, j) => (
-          <div key={`srt-${j}`}>
-            {j > 0 ? (
-              <Grid container spacing={8}>
-                <Grid item xs={6}>
-                  <Layover ticket1={flight.tickets[j - 1]} ticket2={ticket} />
-                </Grid>
-              </Grid>
-            ) : ''}
-            <Ticket ticket={ticket} web3={web3} />
-          </div>
-        ))}
-      </Grid>
-      <Grid item xs={2}>
-        <div className="total">
-          Total: <span className="price">{flight.priceTotal} ETH</span>
-        </div>
-      </Grid>
-    </Grid>
-  );
-}
-
-
 /** Display results of a search */
 function SearchTicketResults(props) {
-  const { resultsReady, flights, web3, sorting, onChangeSorting } = props;
+  const { resultsReady, flights, formatETH, sorting, onChangeSorting, onClickBook } = props;
 
   if (resultsReady) {
     if (flights.length === 0) {
@@ -139,7 +47,11 @@ function SearchTicketResults(props) {
           <div>
             {flights.map((flight, i) => (
               <Paper key={`sr-${i}`} style={{ padding: 15, margin: 15 }}>
-                <Flight flight={flight} web3={web3} />
+                <FlightSummary
+                  flight={flight}
+                  formatETH={formatETH}
+                  onClickBook={() => { onClickBook(flight); }}
+                />
               </Paper>
             ))}
           </div>
@@ -168,7 +80,9 @@ class TicketBrowser extends React.Component {
       // One-stop flights consist of two tickets
       flights: [],
       resultsReady: false,
-      sorting: 'cheapest'
+      sorting: 'cheapest',
+      isBookDialogOpen: false,
+      flightChosen: null
     }
   }
 
@@ -248,7 +162,7 @@ class TicketBrowser extends React.Component {
               this.setState(state => ({
                 flights: [...state.flights, {
                   stops: 0,
-                  priceTotal: this.props.web3.fromWei(ticket.tPrice, 'ether'),
+                  priceTotal: ticket.tPrice,
                   tickets: [ticket]
                 }]
               }));
@@ -281,7 +195,7 @@ class TicketBrowser extends React.Component {
                 this.setState(state => ({
                   flights: [...state.flights, {
                     stops: 0,
-                    priceTotal: this.props.web3.fromWei(ticket1.tPrice, 'ether'),
+                    priceTotal: ticket1.tPrice,
                     tickets: [ticket1]
                   }]
                 }));
@@ -290,12 +204,11 @@ class TicketBrowser extends React.Component {
                 this.props.contract.getTicketById.call(tId2).then(result => {
                   return this.processTicketData(result);
                 }).then(ticket2 => {
-                  let totalPrice = ticket1.tPrice + ticket2.tPrice;
                   // ...and display it on the page
                   this.setState(state => ({
                     flights: [...state.flights, {
                       stops: 1,
-                      priceTotal: this.props.web3.fromWei(totalPrice, 'ether'),
+                      priceTotal: ticket1.tPrice + ticket2.tPrice,
                       tickets: [ticket1, ticket2]
                     }]
                   }));
@@ -314,8 +227,42 @@ class TicketBrowser extends React.Component {
     });
   }
 
+  formatETH = price => {
+    return this.props.web3.fromWei(price, 'ether') + ' ETH';
+  }
+
   onChangeSorting = e => {
     this.setState({ sorting: e.target.value });
+  }
+
+  onClickBook = (flight) => {
+    this.setState({
+      flightChosen: flight,
+      isBookDialogOpen: true
+    });
+  }
+
+  closeBookDialog = () => {
+    this.setState({
+      isBookDialogOpen: false
+    });
+  }
+
+  submitBooking = (data, callback) => {
+    let tId1 = data.flight.tickets[0].tId;
+    let tId2 = data.flight.tickets.length > 1 ? data.flight.tickets[1].tId : 0;
+    this.props.contract.bookFlight(
+      [tId1, tId2],
+      data.firstName,
+      data.lastName,
+      { from: this.props.account, value: data.flight.priceTotal }
+    ).then(() => {
+      callback();
+      this.setState({
+        isBookDialogOpen: false
+      });
+      // TODO: display result!
+    });
   }
 
   render() {
@@ -334,12 +281,20 @@ class TicketBrowser extends React.Component {
             <SearchTicketResults
               resultsReady={this.state.resultsReady}
               flights={this.state.flights}
-              web3={this.props.web3}
+              formatETH={this.formatETH}
               sorting={this.state.sorting}
               onChangeSorting={this.onChangeSorting}
+              onClickBook={this.onClickBook}
             />
           </Grid>
         </Grid>
+        <BookFlightDialog
+          isOpen={this.state.isBookDialogOpen}
+          flight={this.state.flightChosen}
+          onClose={this.closeBookDialog}
+          onSubmit={this.submitBooking}
+          formatETH={this.formatETH}
+        />
       </div>
     );
   }

@@ -290,7 +290,12 @@ contract FlightTickets is Ownable {
     uint256 i = 0;
     for (uint256 j = 0; j < tickets.length; j++) {
       Ticket storage t = tickets[j];
-      if (t.tFrom == _from && t.tTo == _to && t.tDeparture >= _when && t.tDeparture < _when + 24*60*60) {
+      if (
+        t.tFrom == _from &&
+        t.tTo == _to &&
+        t.tDeparture >= _when &&
+        t.tDeparture < _when + 24*60*60
+      ) {
         ticketsFound[i++] = t.tId;
         // When the resulting array is full, stop searching
         if (i == ticketsFound.length) {
@@ -357,7 +362,10 @@ contract FlightTickets is Ownable {
           break;
         }
         // Are these two flights connected? Also make sure the layover is no less than one hour
-        if (ticketsTo[m].tFrom == ticketsFrom[l].tTo && ticketsTo[m].tDeparture > ticketsFrom[l].tArrival + 60*60) {
+        if (
+          ticketsTo[m].tFrom == ticketsFrom[l].tTo &&
+          ticketsTo[m].tDeparture > ticketsFrom[l].tArrival + 60*60
+        ) {
           // One-stop flight found
           ticketsFound[i++] = [ticketsFrom[l].tId, ticketsTo[m].tId];
         }

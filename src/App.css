@@ -86,6 +86,11 @@ h1, h2, h3 {
   padding: 15px;
 }
 
+.purchase-id {
+  margin: 15px;
+  color: grey;
+}
+
 .ticket-passenger-details {
   color: grey;
   font-size: smaller;

@@ -58,6 +58,8 @@ contract FlightTickets is Ownable {
   // The following is a two-dimensional index to find a certain entry in an array ticketsByAirline[aId]
   mapping(uint256 => mapping(uint256 => ArrayIndex)) private ticketsByAirlineIndex;
 
+  uint256 public purchaseIdLast;
+
   // When an airline in the list is added, changed or deleted
   event LogAirlineAdded(uint256 indexed aId, bytes32 indexed aName, address aOwner);
   event LogAirlineUpdated(uint256 indexed aId, bytes32 newAName, address newAOwner);
@@ -77,6 +79,7 @@ contract FlightTickets is Ownable {
   event LogTicketRemoved(uint256 indexed tId);
   // When a ticket is bought
   event LogTicketPurchased(
+    uint256 indexed purchaseId,
     uint256 indexed tId,
     address indexed customer,
     string passengerFirstName,
@@ -149,8 +152,8 @@ contract FlightTickets is Ownable {
       ticket1.tQuantity--;
       ticket2.tQuantity--;
       // Save information about the purchase
-      emit LogTicketPurchased(ticket1.tId, msg.sender, _firstName, _lastName);
-      emit LogTicketPurchased(ticket2.tId, msg.sender, _firstName, _lastName);
+      emit LogTicketPurchased(++purchaseIdLast, ticket1.tId, msg.sender, _firstName, _lastName);
+      emit LogTicketPurchased(++purchaseIdLast, ticket2.tId, msg.sender, _firstName, _lastName);
       // Send the money to the airline owners
       airline1.aOwner.transfer(ticket1.tPrice);
       airline2.aOwner.transfer(ticket2.tPrice);
@@ -159,7 +162,7 @@ contract FlightTickets is Ownable {
       // Reduce the number of seats available
       ticket1.tQuantity--;
       // Save information about the purchase
-      emit LogTicketPurchased(ticket1.tId, msg.sender, _firstName, _lastName);
+      emit LogTicketPurchased(++purchaseIdLast, ticket1.tId, msg.sender, _firstName, _lastName);
       // Send the money to the airline owners
       airline1.aOwner.transfer(ticket1.tPrice);
     }

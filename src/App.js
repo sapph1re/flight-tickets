@@ -103,7 +103,7 @@ class App extends React.Component {
         // Fill and update My Purchases
         this.state.contract.LogTicketPurchased(
           { customer: this.state.account },
-          {fromBlock: 0, toBlock: 'latest'}
+          { fromBlock: 0, toBlock: 'latest' }
         ).watch(this.updateTicketsPurchased);
         // Call other callbacks that might be waiting for the contract to get ready
         if (typeof this.onContractReady === 'function') {
@@ -205,13 +205,16 @@ class App extends React.Component {
       return;
     }
     this.getTicketData(result.args.tId).then(ticket => {
+      ticket.purchaseId = Number(result.args.purchaseId);
       ticket.passenger = {
         firstName: result.args.passengerFirstName,
         lastName: result.args.passengerLastName
       }
-      this.setState(state => ({
-        userPurchasedTickets: [...state.userPurchasedTickets, ticket]
-      }));
+      let purchasedTickets = [...this.state.userPurchasedTickets, ticket];
+      purchasedTickets.sort((a, b) => (a.purchaseId < b.purchaseId));
+      this.setState({
+        userPurchasedTickets: purchasedTickets
+      });
     });
   };
 

@@ -36,15 +36,6 @@ function Ticket(props) {
           <div>for <span className="price">{formatETH(ticket.tPrice)}</span></div>
         </div>
       </Grid>
-      {ticket.passenger ? (
-        <Grid item xs={2}>
-          <div className="ticket-passenger-details">
-            <div>Passenger Details</div>
-            <div>First name: <span className="passenger-details-value">{ticket.passenger.firstName}</span></div>
-            <div>Last name: <span className="passenger-details-value">{ticket.passenger.lastName}</span></div>
-          </div>
-        </Grid>
-      ) : null}
     </Grid >
   );
 }

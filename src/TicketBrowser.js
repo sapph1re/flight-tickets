@@ -82,7 +82,7 @@ function SearchTicketResults(props) {
           </RadioGroup>
           <div>
             {flights.map((flight, i) => (
-              <Paper key={`sr-${i}`} style={{ padding: 15, margin: 15 }}>
+              <Paper key={`sr-${i}`} className="search-result-paper">
                 <FlightSummary
                   flight={flight}
                   formatETH={formatETH}
@@ -105,6 +105,8 @@ function SearchTicketResults(props) {
  * @param web3 - instance of web3
  * @param contract - instance of the smart contract
  * @param account - address of the user
+ * @param navigateToMyPurchases - function to nagivate the user to My Purchases
+ * @param getTicketData - function to get detailed ticket data from ticket ID
  */
 class TicketBrowser extends React.Component {
   constructor(props) {
@@ -121,32 +123,6 @@ class TicketBrowser extends React.Component {
       flightChosen: null,
       isSuccessDialogOpen: false
     }
-  }
-
-  /**
-   * Takes ticket data as returned from the contract and builds a nice object from it
-   * @param {Array} data - array of ticket data, the order of items is important
-   * @return {Promise} - resolves into a nice object with ticket and airline data
-   */
-  processTicketData = (data) => {
-    let aId = Number(data[1]);
-    return this.props.contract.getAirlineById.call(aId).then(result => {
-      let airline = {
-        aId: Number(result[0]),
-        aName: this.props.web3.toUtf8(result[1]),
-        aOwner: result[2]
-      }
-      return {
-        tId: Number(data[0]),
-        tFrom: this.props.web3.toUtf8(data[2]),
-        tTo: this.props.web3.toUtf8(data[3]),
-        tPrice: parseInt(data[4].toString(), 10),
-        tQuantity: Number(data[5]),
-        tDeparture: Number(data[6]),
-        tArrival: Number(data[7]),
-        airline: airline,
-      }
-    });
   }
 
   /**
@@ -192,9 +168,7 @@ class TicketBrowser extends React.Component {
               // end of results
               break;
             }
-            this.props.contract.getTicketById.call(tId).then(result => {
-              return this.processTicketData(result);
-            }).then(ticket => {
+            this.props.getTicketData(tId).then(ticket => {
               // display the result
               this.setState(state => ({
                 flights: [...state.flights, {
@@ -224,9 +198,7 @@ class TicketBrowser extends React.Component {
               // end of results
               break;
             }
-            this.props.contract.getTicketById.call(tId1).then(result => {
-              return this.processTicketData(result);
-            }).then(ticket1 => {
+            this.props.getTicketData(tId1).then(ticket1 => {
               if (tId2 === 0) {
                 // this is a direct flight, display it on the page
                 this.setState(state => ({
@@ -238,9 +210,7 @@ class TicketBrowser extends React.Component {
                 }));
               } else {
                 // this is a one-stop flight, get the second ticket...
-                this.props.contract.getTicketById.call(tId2).then(result => {
-                  return this.processTicketData(result);
-                }).then(ticket2 => {
+                this.props.getTicketData(tId2).then(ticket2 => {
                   // ...and display it on the page
                   this.setState(state => ({
                     flights: [...state.flights, {

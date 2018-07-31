@@ -80,3 +80,19 @@ h1, h2, h3 {
 .booking-details-field {
   width: 50%;
 }
+
+.search-result-paper, .my-purchase-paper {
+  margin: 15px;
+  padding: 15px;
+}
+
+.ticket-passenger-details {
+  color: grey;
+  font-size: smaller;
+}
+
+.passenger-details-value {
+  color: black;
+  font-weight: bold;
+  font-size: larger;
+}

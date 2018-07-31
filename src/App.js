@@ -32,6 +32,8 @@ class App extends React.Component {
       userIsAdmin: false,
       // list of airlines owned by the user
       userOwnsAirlines: [],
+      // list of flights that user has purchased
+      userPurchasedTickets: [],
       // the interface tab that is currently open
       activeTab: 0
     };
@@ -98,6 +100,11 @@ class App extends React.Component {
         this.state.contract.LogAirlineRemoved().watch(updateAirlinesCallback);
         // Update the user rights when the contract changes its owner (very rare case, but still)
         this.state.contract.OwnershipTransferred().watch(this.setUserRights);
+        // Fill and update My Purchases
+        this.state.contract.LogTicketPurchased(
+          { customer: this.state.account },
+          {fromBlock: 0, toBlock: 'latest'}
+        ).watch(this.updateTicketsPurchased);
         // Call other callbacks that might be waiting for the contract to get ready
         if (typeof this.onContractReady === 'function') {
           this.onContractReady();
@@ -115,7 +122,7 @@ class App extends React.Component {
     if (this.state.web3 !== null && this.state.contract !== null) {
       this.onContractReady();
     }
-  }
+  };
 
   /** Figure out the rights of the user and save it to the state */
   setUserRights = () => {
@@ -128,7 +135,7 @@ class App extends React.Component {
       let ownedAirlines = this.state.airlines.filter((airline, i) => (this.state.account === airline.aOwner), this);
       return this.setState({ userOwnsAirlines: ownedAirlines });
     });
-  }
+  };
 
   /** Get the list of airlines from the contract and save it to the state */
   loadAirlines = () => {
@@ -158,11 +165,55 @@ class App extends React.Component {
     }).catch(error => {
       console.log(error);
     });
-  }
+  };
 
   setAirlines = (airlines) => {
     return this.setState({ airlines: airlines });
-  }
+  };
+
+  /**
+   * Loads ticket and airline data from the contract and builds a nice object from it
+   * @param {Number} tId - ticket ID
+   * @return {Promise} - resolves into a nice object with ticket and airline data
+   */
+  getTicketData = (tId) => {
+    return this.state.contract.getTicketById.call(tId).then(data => {
+      let aId = Number(data[1]);
+      return this.state.contract.getAirlineById.call(aId).then(result => {
+        let airline = {
+          aId: Number(result[0]),
+          aName: this.state.web3.toUtf8(result[1]),
+          aOwner: result[2]
+        }
+        return {
+          tId: Number(data[0]),
+          tFrom: this.state.web3.toUtf8(data[2]),
+          tTo: this.state.web3.toUtf8(data[3]),
+          tPrice: parseInt(data[4].toString(), 10),
+          tQuantity: Number(data[5]),
+          tDeparture: Number(data[6]),
+          tArrival: Number(data[7]),
+          airline: airline,
+        }
+      });
+    });
+  };
+
+  updateTicketsPurchased = (error, result) => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+    this.getTicketData(result.args.tId).then(ticket => {
+      ticket.passenger = {
+        firstName: result.args.passengerFirstName,
+        lastName: result.args.passengerLastName
+      }
+      this.setState(state => ({
+        userPurchasedTickets: [...state.userPurchasedTickets, ticket]
+      }));
+    });
+  };
 
   switchTab = (event, value) => {
     this.setState({ activeTab: value });
@@ -214,6 +265,7 @@ class App extends React.Component {
               contract={this.state.contract}
               account={this.state.account}
               navigateToMyPurchases={() => { this.switchTab(null, 1); }}
+              getTicketData={this.getTicketData}
             />
           )}
           {this.state.activeTab === 1 && (
@@ -221,6 +273,7 @@ class App extends React.Component {
               web3={this.state.web3}
               contract={this.state.contract}
               account={this.state.account}
+              myTickets={this.state.userPurchasedTickets}
             />
           )}
           {this.state.activeTab === 2 && this.state.userOwnsAirlines.length > 0 && (

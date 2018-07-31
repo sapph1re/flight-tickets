@@ -78,7 +78,7 @@ contract FlightTickets is Ownable {
   // When a ticket is bought
   event LogTicketPurchased(
     uint256 indexed tId,
-    address customer,
+    address indexed customer,
     string passengerFirstName,
     string passengerLastName
   );

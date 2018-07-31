@@ -7,6 +7,42 @@ import Paper from '@material-ui/core/Paper';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
+
+function SuccessDialog(props) {
+  const { isOpen, onClose } = props;
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">
+        Booking completed!
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          You have purchased your tickets.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => onClose(false)} color="primary">
+          Continue Searching
+        </Button>
+        <Button onClick={() => onClose(true)} color="primary" variant="contained" autoFocus>
+          Go To My Purchases
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
 
 
 /** Display results of a search */
@@ -82,7 +118,8 @@ class TicketBrowser extends React.Component {
       resultsReady: false,
       sorting: 'cheapest',
       isBookDialogOpen: false,
-      flightChosen: null
+      flightChosen: null,
+      isSuccessDialogOpen: false
     }
   }
 
@@ -259,10 +296,19 @@ class TicketBrowser extends React.Component {
     ).then(() => {
       callback();
       this.setState({
-        isBookDialogOpen: false
+        isBookDialogOpen: false,
+        isSuccessDialogOpen: true
       });
-      // TODO: display result!
     });
+  }
+
+  closeSuccessDialog = (goToMyPurchases) => {
+    this.setState({
+      isSuccessDialogOpen: false
+    });
+    if (goToMyPurchases) {
+      this.props.navigateToMyPurchases();
+    }
   }
 
   render() {
@@ -294,6 +340,10 @@ class TicketBrowser extends React.Component {
           onClose={this.closeBookDialog}
           onSubmit={this.submitBooking}
           formatETH={this.formatETH}
+        />
+        <SuccessDialog
+          isOpen={this.state.isSuccessDialogOpen}
+          onClose={this.closeSuccessDialog}
         />
       </div>
     );

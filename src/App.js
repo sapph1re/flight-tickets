@@ -4,12 +4,14 @@ import FlightTicketsContract from '../build/contracts/FlightTickets.json';
 import AirlineList from './AirlineList';
 import TicketManager from './TicketManager';
 import TicketBrowser from './TicketBrowser';
+import MyPurchases from './MyPurchases';
 import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import SearchIcon from '@material-ui/icons/Search';
 import FlightIcon from '@material-ui/icons/Flight';
-import ListIcon from '@material-ui/icons/List';
+import StorageIcon from '@material-ui/icons/Storage';
+import BuildIcon from '@material-ui/icons/Build';
 
 import './css/oswald.css'
 import './App.css'
@@ -194,11 +196,12 @@ class App extends React.Component {
             textColor="primary"
           >
             <Tab icon={<SearchIcon />} label="Search Tickets" value={0} />
+            <Tab icon={<StorageIcon />} label="My Purchases" value={1} />
             {this.state.userOwnsAirlines.length > 0 && (
-              <Tab icon={<ListIcon />} label="My Airline" value={1} />
+              <Tab icon={<FlightIcon />} label="My Airline" value={2} />
             )}
             {this.state.userIsAdmin && (
-              <Tab icon={<FlightIcon />} label="Admin: Manage Airlines" value={2} />
+              <Tab icon={<BuildIcon />} label="Admin: Manage Airlines" value={3} />
             )}
           </Tabs>
         </Paper>
@@ -210,16 +213,24 @@ class App extends React.Component {
               web3={this.state.web3}
               contract={this.state.contract}
               account={this.state.account}
+              navigateToMyPurchases={() => { this.switchTab(null, 1); }}
             />
           )}
-          {this.state.activeTab === 1 && this.state.userOwnsAirlines.length > 0 && (
+          {this.state.activeTab === 1 && (
+            <MyPurchases
+              web3={this.state.web3}
+              contract={this.state.contract}
+              account={this.state.account}
+            />
+          )}
+          {this.state.activeTab === 2 && this.state.userOwnsAirlines.length > 0 && (
             <TicketManager
               airlines={this.state.userOwnsAirlines}
               setOnContractReady={this.setOnContractReady}
               account={this.state.account}
             />
           )}
-          {this.state.activeTab === 2 && this.state.userIsAdmin && (
+          {this.state.activeTab === 3 && this.state.userIsAdmin && (
             <AirlineList
               airlines={this.state.airlines}
               setAirlines={this.setAirlines}

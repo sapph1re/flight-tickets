@@ -55,7 +55,7 @@ contract('FlightTickets', accounts => {
   });
 
   it('edits an airline', async () => {
-    await flightTickets.editAirline(1, 'New Airline Name', accounts[3]);
+    await flightTickets.editAirline(1, 'New Airline Name', accounts[3], { from: accounts[0] });
     let [aId, aName, aOwner] = await flightTickets.airlines.call(0);
     aName = web3.toUtf8(aName);
     assert.equal(aId, 1);
@@ -66,13 +66,13 @@ contract('FlightTickets', accounts => {
   it('does not allow to edit an airline when the new name is taken', async () => {
     await flightTickets.addAirline('Second Airline', accounts[4], { from: accounts[0] });
     assert.ok(await hasReverted(
-      flightTickets.editAirline(1, 'Second Airline', accounts[3])
+      flightTickets.editAirline(1, 'Second Airline', accounts[3], { from: accounts[0] })
     ));
   });
 
   it('removes an airline', async () => {
     let count = await flightTickets.getAirlinesCount.call();
-    await flightTickets.removeAirline(1);
+    await flightTickets.removeAirline(1, { from: accounts[0] });
     let newCount = await flightTickets.getAirlinesCount.call();
     assert.equal(newCount, count - 1);
     let exists = await flightTickets.airlineExists('New Airline Name');

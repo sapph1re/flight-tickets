@@ -107,6 +107,7 @@ function SearchTicketResults(props) {
  * @param account - address of the user
  * @param navigateToMyPurchases - function to nagivate the user to My Purchases
  * @param getTicketData - function to get detailed ticket data from ticket ID
+ * @param onBookingComplete - function to be called when booking transaction is executed
  */
 class TicketBrowser extends React.Component {
   constructor(props) {
@@ -263,12 +264,14 @@ class TicketBrowser extends React.Component {
       data.firstName,
       data.lastName,
       { from: this.props.account, value: data.flight.priceTotal }
-    ).then(() => {
+    ).then(result => {
       callback();
       this.setState({
         isBookDialogOpen: false,
         isSuccessDialogOpen: true
       });
+      // Process results of the transaction
+      this.props.onBookingComplete(result);
     });
   }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import Ticket from './Ticket';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 /**
  * Displays a list of user's purchased flights.
@@ -17,20 +18,29 @@ class MyPurchases extends React.Component {
   }
 
   render() {
+    let tickets = this.props.myTickets;
+    tickets.sort((a, b) => (b.purchaseId - a.purchaseId));
+
     return (
       <div>
         <h1>My Purchases</h1>
-        {this.props.myTickets.map((ticket, i) => (
+        {tickets.map((ticket, i) => (
           <Paper key={`mp-${i}`} className="my-purchase-paper">
             <Grid container spacing={16}>
               <Grid item xs={1}>
                 <div className="purchase-id">{ticket.purchaseId}</div>
               </Grid>
               <Grid item xs={8}>
-                <Ticket
-                  ticket={ticket}
-                  formatETH={this.formatETH}
-                />
+                {ticket.isLoading ? (
+                  <div className="my-purchase-loading">
+                    <CircularProgress size={20} />
+                  </div>
+                ) : (
+                    <Ticket
+                      ticket={ticket}
+                      formatETH={this.formatETH}
+                    />
+                  )}
               </Grid>
               {ticket.passenger ? (
                 <Grid item xs={3}>

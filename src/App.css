@@ -101,3 +101,8 @@ h1, h2, h3 {
   font-weight: bold;
   font-size: larger;
 }
+
+.my-purchase-loading {
+  text-align: center;
+  padding-top: 15px;
+}

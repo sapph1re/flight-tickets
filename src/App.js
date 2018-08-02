@@ -204,17 +204,45 @@ class App extends React.Component {
       console.log(error);
       return;
     }
-    this.getTicketData(result.args.tId).then(ticket => {
-      ticket.purchaseId = Number(result.args.purchaseId);
-      ticket.passenger = {
+    let purchaseId = Number(result.args.purchaseId);
+    // Check for duplicates
+    if (this.state.userPurchasedTickets.findIndex(x => x.purchaseId === purchaseId) > -1)
+      return;
+    // Add the ticket to my purchases in the loading state first
+    let newPurchase = {
+      isLoading: true,
+      purchaseId: purchaseId,
+      passenger: {
         firstName: result.args.passengerFirstName,
         lastName: result.args.passengerLastName
       }
-      let purchasedTickets = [...this.state.userPurchasedTickets, ticket];
-      purchasedTickets.sort((a, b) => (a.purchaseId < b.purchaseId));
-      this.setState({
-        userPurchasedTickets: purchasedTickets
-      });
+    }
+    this.setState({
+      userPurchasedTickets: [...this.state.userPurchasedTickets, newPurchase]
+    });
+    return this.getTicketData(result.args.tId).then(ticket => {
+      // Update the ticket with actual data and quit the loading state
+      this.setState(state => ({
+        userPurchasedTickets: state.userPurchasedTickets.map(purchased => {
+          if (purchased.purchaseId === newPurchase.purchaseId) {
+            ticket.purchaseId = newPurchase.purchaseId;
+            ticket.passenger = newPurchase.passenger;
+            ticket.isLoading = false;
+            return ticket;
+          }
+          return purchased;
+        })
+      }));
+    });
+  };
+
+  onPurchaseComplete = (txResult) => {
+    txResult.logs.forEach(log => {
+      if (log.event !== 'LogTicketPurchased')
+        return;
+      if (log.args.customer !== this.state.account)
+        return;
+      this.updateTicketsPurchased(null, log);
     });
   };
 
@@ -269,6 +297,7 @@ class App extends React.Component {
               account={this.state.account}
               navigateToMyPurchases={() => { this.switchTab(null, 1); }}
               getTicketData={this.getTicketData}
+              onBookingComplete={this.onPurchaseComplete}
             />
           )}
           {this.state.activeTab === 1 && (

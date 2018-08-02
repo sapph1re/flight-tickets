@@ -1,6 +1,7 @@
 import React from 'react';
 import TicketForm from "./TicketForm";
 import EditableTable from "./EditableTable";
+import SoldTickets from './SoldTickets';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Select from '@material-ui/core/Select';
@@ -13,8 +14,9 @@ import InputLabel from '@material-ui/core/InputLabel';
  * @param airlines - list of airlines owned by the user
  * @param setOnContractReady - function to set a callback to be called when web3 and the contract are ready
  * @param account - address of the user
+ * @param getTicketData - function to load detailed information about a ticket by its ID
  */
-class TicketManager extends React.Component {
+class MyAirline extends React.Component {
   constructor(props) {
     super(props);
 
@@ -30,7 +32,9 @@ class TicketManager extends React.Component {
       // current airline whose tickets are being managed
       airlineIdx: 0,
       // list of tickets the current airline has
-      tickets: []
+      tickets: [],
+      // list of tickets sold already
+      soldTickets: []
     };
   }
 
@@ -54,6 +58,11 @@ class TicketManager extends React.Component {
           this.state.contract.LogTicketAdded().watch(updateTicketsCallback);
           this.state.contract.LogTicketUpdated().watch(updateTicketsCallback);
           this.state.contract.LogTicketRemoved().watch(updateTicketsCallback);
+          // Fill and update Sold Tickets
+          this.state.contract.LogTicketPurchased(
+            {},
+            { fromBlock: 0, toBlock: 'latest' }
+          ).watch(this.updateTicketsSold);
         }).catch(error => {
           console.log(error);
         });
@@ -290,6 +299,43 @@ class TicketManager extends React.Component {
     }));
   }
 
+  updateTicketsSold = (error, result) => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+    let purchaseId = Number(result.args.purchaseId);
+    // Add the ticket to sold tickets in the loading state first
+    let newTicketSold = {
+      isLoading: true,
+      purchaseId: purchaseId,
+      tId: Number(result.args.tId),
+      buyer: result.args.customer,
+      passenger: {
+        firstName: result.args.passengerFirstName,
+        lastName: result.args.passengerLastName
+      }
+    }
+    this.setState(state => ({
+      soldTickets: [...state.soldTickets, newTicketSold]
+    }));
+    return this.props.getTicketData(result.args.tId).then(ticket => {
+      // Update the ticket with actual data and quit the loading state
+      this.setState(state => ({
+        soldTickets: state.soldTickets.map(sold => {
+          if (sold.purchaseId === newTicketSold.purchaseId) {
+            ticket.purchaseId = newTicketSold.purchaseId;
+            ticket.passenger = newTicketSold.passenger;
+            ticket.buyer = newTicketSold.buyer;
+            ticket.isLoading = false;
+            return ticket;
+          }
+          return sold;
+        })
+      }));
+    });
+  };
+
   render() {
     return (
       <div>
@@ -306,7 +352,16 @@ class TicketManager extends React.Component {
           </Select>
         </FormControl>
 
-        <h1>Manage Tickets</h1>
+        <h2>Sold Tickets</h2>
+
+        <SoldTickets
+          web3={this.state.web3}
+          contract={this.state.contract}
+          account={this.props.account}
+          soldTickets={this.state.soldTickets}
+        />
+
+        <h2>Manage Tickets</h2>
 
         <Grid container spacing={24}>
           <Grid item xs={4}>
@@ -383,4 +438,4 @@ class TicketManager extends React.Component {
   }
 }
 
-export default TicketManager;
+export default MyAirline;

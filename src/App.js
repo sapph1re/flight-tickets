@@ -2,7 +2,7 @@ import React from 'react';
 import getWeb3 from './utils/getWeb3';
 import FlightTicketsContract from '../build/contracts/FlightTickets.json';
 import AirlineList from './AirlineList';
-import TicketManager from './TicketManager';
+import MyAirline from './MyAirline';
 import TicketBrowser from './TicketBrowser';
 import MyPurchases from './MyPurchases';
 import Paper from '@material-ui/core/Paper';
@@ -217,9 +217,9 @@ class App extends React.Component {
         lastName: result.args.passengerLastName
       }
     }
-    this.setState({
-      userPurchasedTickets: [...this.state.userPurchasedTickets, newPurchase]
-    });
+    this.setState(state => ({
+      userPurchasedTickets: [...state.userPurchasedTickets, newPurchase]
+    }));
     return this.getTicketData(result.args.tId).then(ticket => {
       // Update the ticket with actual data and quit the loading state
       this.setState(state => ({
@@ -309,10 +309,11 @@ class App extends React.Component {
             />
           )}
           {this.state.activeTab === 2 && this.state.userOwnsAirlines.length > 0 && (
-            <TicketManager
+            <MyAirline
               airlines={this.state.userOwnsAirlines}
               setOnContractReady={this.setOnContractReady}
               account={this.state.account}
+              getTicketData={this.getTicketData}
             />
           )}
           {this.state.activeTab === 3 && this.state.userIsAdmin && (

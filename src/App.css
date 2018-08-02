@@ -81,7 +81,7 @@ h1, h2, h3 {
   width: 50%;
 }
 
-.search-result-paper, .my-purchase-paper {
+.search-result-paper, .my-purchase-paper, .sold-ticket-paper {
   margin: 15px;
   padding: 15px;
 }
@@ -105,4 +105,36 @@ h1, h2, h3 {
 .my-purchase-loading {
   text-align: center;
   padding-top: 15px;
+}
+
+.sold-tickets-container {
+  max-height: 400px;
+  overflow-y: scroll;
+  background: #f0f0f0;
+  padding: 0px;
+  position: relative;
+}
+
+.ticket-buyer {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sold-ticket-paper .ticket-loading {
+  text-align: center;
+  padding-top: 20px;
+}
+
+.sold-ticket-paper .purchase-id {
+  margin: 20px;
+}
+
+.sold-ticket-paper .ticket-id {
+  margin-top: 20px;
+  white-space: nowrap;
+}
+
+.sold-ticket-paper .ticket {
+  margin-top: 5px;
 }

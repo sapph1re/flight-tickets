@@ -24,36 +24,42 @@ class MyPurchases extends React.Component {
     return (
       <div>
         <h1>My Purchases</h1>
-        {tickets.map((ticket, i) => (
-          <Paper key={`mp-${i}`} className="my-purchase-paper">
-            <Grid container spacing={16}>
-              <Grid item xs={1}>
-                <div className="purchase-id">{ticket.purchaseId}</div>
-              </Grid>
-              <Grid item xs={8}>
-                {ticket.isLoading ? (
-                  <div className="my-purchase-loading">
-                    <CircularProgress size={20} />
-                  </div>
-                ) : (
-                    <Ticket
-                      ticket={ticket}
-                      formatETH={this.formatETH}
-                    />
-                  )}
-              </Grid>
-              {ticket.passenger ? (
-                <Grid item xs={3}>
-                  <div className="ticket-passenger-details">
-                    <div>Passenger Details</div>
-                    <div>First name: <span className="passenger-details-value">{ticket.passenger.firstName}</span></div>
-                    <div>Last name: <span className="passenger-details-value">{ticket.passenger.lastName}</span></div>
-                  </div>
+        {tickets.length === 0 ? (
+          <div>
+            You haven't purchased anything yet
+          </div>
+        ) :
+          tickets.map((ticket, i) => (
+            <Paper key={`mp-${i}`} className="my-purchase-paper">
+              <Grid container spacing={16}>
+                <Grid item xs={1}>
+                  <div className="purchase-id">{ticket.purchaseId}</div>
                 </Grid>
-              ) : null}
-            </Grid>
-          </Paper>
-        ))}
+                <Grid item xs={8}>
+                  {ticket.isLoading ? (
+                    <div className="my-purchase-loading">
+                      <CircularProgress size={20} />
+                    </div>
+                  ) : (
+                      <Ticket
+                        ticket={ticket}
+                        formatETH={this.formatETH}
+                      />
+                    )}
+                </Grid>
+                {ticket.passenger ? (
+                  <Grid item xs={3}>
+                    <div className="ticket-passenger-details">
+                      <div>Passenger Details</div>
+                      <div>First name: <span className="passenger-details-value">{ticket.passenger.firstName}</span></div>
+                      <div>Last name: <span className="passenger-details-value">{ticket.passenger.lastName}</span></div>
+                    </div>
+                  </Grid>
+                ) : null}
+              </Grid>
+            </Paper>
+          ))
+        }
       </div>
     );
   }

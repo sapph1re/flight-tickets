@@ -304,6 +304,10 @@ class App extends React.Component {
           </Tabs>
         </Paper>
 
+        <div className="current-account">
+          Account: {this.state.account}
+        </div>
+
         <main className="container">
 
           {this.state.activeTab === 0 && (

@@ -60,7 +60,7 @@ class MyAirline extends React.Component {
           this.state.contract.LogTicketRemoved().watch(updateTicketsCallback);
           // Fill and update Sold Tickets
           this.state.contract.LogTicketPurchased(
-            {},
+            { aId: this.props.airlines[this.state.airlineIdx].aId },
             { fromBlock: 0, toBlock: 'latest' }
           ).watch(this.updateTicketsSold);
         }).catch(error => {

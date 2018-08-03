@@ -80,8 +80,9 @@ contract FlightTickets is Ownable {
   // When a ticket is bought
   event LogTicketPurchased(
     uint256 indexed purchaseId,
-    uint256 indexed tId,
     address indexed customer,
+    uint256 indexed aId,
+    uint256 tId,
     string passengerFirstName,
     string passengerLastName
   );
@@ -152,8 +153,8 @@ contract FlightTickets is Ownable {
       ticket1.tQuantity--;
       ticket2.tQuantity--;
       // Save information about the purchase
-      emit LogTicketPurchased(++purchaseIdLast, ticket1.tId, msg.sender, _firstName, _lastName);
-      emit LogTicketPurchased(++purchaseIdLast, ticket2.tId, msg.sender, _firstName, _lastName);
+      emit LogTicketPurchased(++purchaseIdLast, msg.sender, airline1.aId, ticket1.tId, _firstName, _lastName);
+      emit LogTicketPurchased(++purchaseIdLast, msg.sender, airline2.aId, ticket2.tId, _firstName, _lastName);
       // Send the money to the airline owners
       airline1.aOwner.transfer(ticket1.tPrice);
       airline2.aOwner.transfer(ticket2.tPrice);
@@ -162,7 +163,7 @@ contract FlightTickets is Ownable {
       // Reduce the number of seats available
       ticket1.tQuantity--;
       // Save information about the purchase
-      emit LogTicketPurchased(++purchaseIdLast, ticket1.tId, msg.sender, _firstName, _lastName);
+      emit LogTicketPurchased(++purchaseIdLast, msg.sender, airline1.aId, ticket1.tId, _firstName, _lastName);
       // Send the money to the airline owners
       airline1.aOwner.transfer(ticket1.tPrice);
     }

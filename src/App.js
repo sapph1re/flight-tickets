@@ -82,7 +82,10 @@ class App extends React.Component {
               this.setState({
                 account: accounts[0],
                 userPurchasedTickets: []
-              }, this.setUserRights);
+              }, () => {
+                this.setUserRights();
+                this.initMyPurchases();
+              });
             }
           });
         }, 500);
@@ -107,14 +110,7 @@ class App extends React.Component {
         // Update the user rights when the contract changes its owner (very rare case, but still)
         this.state.contract.OwnershipTransferred().watch(this.setUserRights);
         // Fill and update My Purchases
-        // this.setState({
-        //   userPurchasedTickets: []
-        // }).then(() => {
-        this.state.contract.LogTicketPurchased(
-          { customer: this.state.account },
-          { fromBlock: 0, toBlock: 'latest' }
-        ).watch(this.updateTicketsPurchased);
-        // });
+        this.initMyPurchases();
         // Call other callbacks that might be waiting for the contract to get ready
         if (typeof this.onContractReady === 'function') {
           this.onContractReady();
@@ -123,6 +119,16 @@ class App extends React.Component {
         console.log(error);
       });
     });
+  }
+
+  initMyPurchases() {
+    if (this.myPurchasesFilter) {
+      this.myPurchasesFilter.stopWatching();
+    }
+    this.myPurchasesFilter = this.state.contract.LogTicketPurchased(
+      { customer: this.state.account },
+      { fromBlock: 0, toBlock: 'latest' }
+    ).watch(this.updateTicketsPurchased);
   }
 
   setOnContractReady = (callback) => {

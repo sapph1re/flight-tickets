@@ -60,9 +60,15 @@ Sample data provides flights between the following cities: Dubai, Bangkok, Hong 
 
 Make sure to set your flight date anywhere between 04/12/2018 and 07/12/2018, as tickets are provided for these four days.
 
+Results may be sorted either by total price or by total duration.
+
+Try buying tickets that you find. Press "Book", enter passenger's name and surname, press "Buy Now" and confirm the transaction with MetaMask. Then you can go to "My Purchases" and see the tickets you've just bought.
+
+With an airline owner's account, you can go to "My Airline" and see the tickets that have been sold to customers. You can see those ones you just bought, but make sure you log in with the proper airline. Also check your ETH balance, you'll have the revenue from selling the tickets.
+
 The first ganache address is the owner of the contract and the admin of the dapp. If you login in to MetaMask with it, you will see the admin panel in the menu. The first address also owns one airline. Two more airlines are owned by the second ganache's address and one airline by the third address. When you're logged in to MetaMask with an address that owns an airline, you will see your airline panel in the menu.
 
-Feel free to play around with airlines and their owners in the admin panel, as well as with the tickets of your airlines in the airline panel.
+Feel free to play around with airlines and their owners in the admin panel, as well as with the tickets of your airlines in the airline panel. You may add more tickets to new destinations and then try finding and buying them in the "Search Tickets" tab.
 
 ## Testing
 

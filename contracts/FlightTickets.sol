@@ -1,14 +1,15 @@
 pragma solidity ^0.4.24;
 
 import "../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
-import "../installed_contracts/zeppelin/contracts/ownership/Ownable.sol";
+import "../installed_contracts/zeppelin/contracts/lifecycle/Pausable.sol";
 
 /**
  * @title Flight tickets marketplace for customers and airlines
  * @author Roman Vinogradov <dev.romanv@gmail.com>
  */
-contract FlightTickets is Ownable {
-  // Library that allows overflow-safe arithmetic operations
+contract FlightTickets is Pausable {
+
+  // SafeMath is a library that allows overflow-safe arithmetic operations
   // Used like this: a.add(b) or a.mul(b) where a & b are uint256
   using SafeMath for uint256;
 
@@ -125,7 +126,11 @@ contract FlightTickets is Ownable {
    * Redundant ETH will be returned back to the sender.
    * @param _tIds List of ticket IDs. If second item is zero, only one ticket will be bought.
    */
-  function bookFlight(uint256[2] _tIds, string _firstName, string _lastName) public payable {
+  function bookFlight(uint256[2] _tIds, string _firstName, string _lastName)
+    public
+    payable
+    whenNotPaused
+  {
     // Find the first ticket, it is required
     require(ticketIdIndex[_tIds[0]].exists, "Ticket does not exist");
     Ticket storage ticket1 = tickets[ticketIdIndex[_tIds[0]].index];
@@ -153,8 +158,12 @@ contract FlightTickets is Ownable {
       ticket1.tQuantity--;
       ticket2.tQuantity--;
       // Save information about the purchase
-      emit LogTicketPurchased(++purchaseIdLast, msg.sender, airline1.aId, ticket1.tId, _firstName, _lastName);
-      emit LogTicketPurchased(++purchaseIdLast, msg.sender, airline2.aId, ticket2.tId, _firstName, _lastName);
+      uint256 purchaseId1 = purchaseIdLast.add(1);
+      purchaseIdLast = purchaseId1;
+      emit LogTicketPurchased(purchaseId1, msg.sender, airline1.aId, ticket1.tId, _firstName, _lastName);
+      uint256 purchaseId2 = purchaseIdLast.add(1);
+      purchaseIdLast = purchaseId2;
+      emit LogTicketPurchased(purchaseId2, msg.sender, airline2.aId, ticket2.tId, _firstName, _lastName);
       // Send the money to the airline owners
       airline1.aOwner.transfer(ticket1.tPrice);
       airline2.aOwner.transfer(ticket2.tPrice);
@@ -163,7 +172,9 @@ contract FlightTickets is Ownable {
       // Reduce the number of seats available
       ticket1.tQuantity--;
       // Save information about the purchase
-      emit LogTicketPurchased(++purchaseIdLast, msg.sender, airline1.aId, ticket1.tId, _firstName, _lastName);
+      uint256 purchaseId = purchaseIdLast.add(1);
+      purchaseIdLast = purchaseId;
+      emit LogTicketPurchased(purchaseId, msg.sender, airline1.aId, ticket1.tId, _firstName, _lastName);
       // Send the money to the airline owners
       airline1.aOwner.transfer(ticket1.tPrice);
     }
@@ -384,7 +395,7 @@ contract FlightTickets is Ownable {
    * @param _aName Name of the airline, must be unique (transaction will fail otherwise)
    * @param _aOwner Address of the airline owner, can be any Ethereum address
    */
-  function addAirline(bytes32 _aName, address _aOwner) public onlyOwner {
+  function addAirline(bytes32 _aName, address _aOwner) public onlyOwner whenNotPaused {
     require(!airlineExists(_aName), "Airline name is already taken");
     // generate new airline ID
     uint256 _aId = aIdLast.add(1);
@@ -404,7 +415,11 @@ contract FlightTickets is Ownable {
    * @param _newAName New name of the airline, must be unique or remain unchanged
    * @param _newAOwner New owner of the airline
    */
-  function editAirline(uint256 _aId, bytes32 _newAName, address _newAOwner) public onlyOwner {
+  function editAirline(uint256 _aId, bytes32 _newAName, address _newAOwner)
+    public
+    onlyOwner
+    whenNotPaused
+  {
     require(airlineIdIndex[_aId].exists, "Airline does not exist");
     // get index of the array element being changed
     uint256 _index = airlineIdIndex[_aId].index;
@@ -427,7 +442,7 @@ contract FlightTickets is Ownable {
    * on the order of the array, sort it yourself when you need it.
    * @param _aId ID of the airline to remove
    */
-  function removeAirline(uint256 _aId) public onlyOwner {
+  function removeAirline(uint256 _aId) public onlyOwner whenNotPaused {
     require(airlineIdIndex[_aId].exists, "Airline does not exist");
     // get index of the array element being removed
     uint256 _index = airlineIdIndex[_aId].index;
@@ -466,7 +481,7 @@ contract FlightTickets is Ownable {
     uint256 _tQuantity,
     uint256 _tDeparture,
     uint256 _tArrival
-  ) public onlyAirlineOwner(_aId) {
+  ) public onlyAirlineOwner(_aId) whenNotPaused {
     // make sure departure & arrival times are valid
     require(_tQuantity > 0, "Quantity must be positive");
     // yes, we are using block time here, but we don't care about the 30-seconds
@@ -516,6 +531,7 @@ contract FlightTickets is Ownable {
   function editTicket(uint256 _tId, uint256 _newTPrice, uint256 _newTQuantity)
     public
     onlyTicketOwner(_tId)
+    whenNotPaused
   {
     // update the ticket data
     uint256 _index = ticketIdIndex[_tId].index;
@@ -536,7 +552,7 @@ contract FlightTickets is Ownable {
    *
    * @param _tId ID of the ticket to remove
    */
-  function removeTicket(uint256 _tId) public onlyTicketOwner(_tId) {
+  function removeTicket(uint256 _tId) public onlyTicketOwner(_tId) whenNotPaused {
     // save the ticket's airline ID for the later use
     uint256 _aId = tickets[_index].aId;
     // remove the ticket

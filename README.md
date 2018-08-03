@@ -79,6 +79,7 @@ The tests cover:
 * input data validation
 * searching for tickets
 * buying tickets
+* emergency stop
 
 To run the tests:
 ```

@@ -223,4 +223,17 @@ contract('FlightTickets', accounts => {
     assert.equal(tNewQuantity2, tQuantity2 - 1);
   });
 
+  it('pauses the contract', async () => {
+    await flightTickets.pause();
+    assert.ok(await hasReverted(
+      flightTickets.addAirline('New Test Airline', accounts[2], { from: accounts[0] })
+    ));
+  });
+
+  it('unpauses the contract', async () => {
+    await flightTickets.unpause();
+    await flightTickets.addAirline('New Test Airline', accounts[2], { from: accounts[0] });
+    assert.ok(await flightTickets.airlineExists('New Test Airline'));
+  });
+
 });

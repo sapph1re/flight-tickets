@@ -69,14 +69,20 @@ class App extends React.Component {
       // Get our main contract
       flightTickets.deployed().then(instance => {
         // Save the instance of the contract and the account
-        return this.setState({ contract: instance, account: accounts[0] });
+        return this.setState({
+          contract: instance,
+          account: accounts[0]
+        });
       }).then(result => {
         // Detect when account changes
         setInterval(() => {
           this.state.web3.eth.getAccounts((error, accounts) => {
             if (accounts[0] !== this.state.account) {
-              // Update account in the state and update the user rights
-              this.setState({ account: accounts[0] }, this.setUserRights);
+              // Update account in the state, update the user rights, flush my purchases
+              this.setState({
+                account: accounts[0],
+                userPurchasedTickets: []
+              }, this.setUserRights);
             }
           });
         }, 500);
@@ -101,10 +107,14 @@ class App extends React.Component {
         // Update the user rights when the contract changes its owner (very rare case, but still)
         this.state.contract.OwnershipTransferred().watch(this.setUserRights);
         // Fill and update My Purchases
+        // this.setState({
+        //   userPurchasedTickets: []
+        // }).then(() => {
         this.state.contract.LogTicketPurchased(
           { customer: this.state.account },
           { fromBlock: 0, toBlock: 'latest' }
         ).watch(this.updateTicketsPurchased);
+        // });
         // Call other callbacks that might be waiting for the contract to get ready
         if (typeof this.onContractReady === 'function') {
           this.onContractReady();

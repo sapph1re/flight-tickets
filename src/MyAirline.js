@@ -59,15 +59,22 @@ class MyAirline extends React.Component {
           this.state.contract.LogTicketUpdated().watch(updateTicketsCallback);
           this.state.contract.LogTicketRemoved().watch(updateTicketsCallback);
           // Fill and update Sold Tickets
-          this.state.contract.LogTicketPurchased(
-            { aId: this.props.airlines[this.state.airlineIdx].aId },
-            { fromBlock: 0, toBlock: 'latest' }
-          ).watch(this.updateTicketsSold);
+          this.initSoldTickets();
         }).catch(error => {
           console.log(error);
         });
       });
     });
+  }
+
+  initSoldTickets() {
+    if (this.soldTicketsFilter) {
+      this.soldTicketsFilter.stopWatching();
+    }
+    this.soldTicketsFilter = this.state.contract.LogTicketPurchased(
+      { aId: this.props.airlines[this.state.airlineIdx].aId },
+      { fromBlock: 0, toBlock: 'latest' }
+    ).watch(this.updateTicketsSold);
   }
 
   /** Get the list of tickets from the contract and save it to the state */
@@ -108,7 +115,13 @@ class MyAirline extends React.Component {
 
   /** When user chooses one of the airlines he owns */
   selectAirline = (e) => {
-    this.setState({ airlineIdx: e.target.value }, this.loadTickets);
+    this.setState({
+      airlineIdx: e.target.value,
+      soldTickets: []
+    }, () => {
+      this.loadTickets();
+      this.initSoldTickets();
+    });
   }
 
   /**

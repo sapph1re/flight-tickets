@@ -1,6 +1,7 @@
 import React from 'react';
 import getWeb3 from './utils/getWeb3';
 import FlightTicketsContract from '../build/contracts/FlightTickets.json';
+import FlightTicketsRegistryContract from '../build/contracts/FlightTicketsRegistry.json';
 import AdminPanel from './AdminPanel';
 import MyAirline from './MyAirline';
 import TicketBrowser from './TicketBrowser';
@@ -58,7 +59,9 @@ class App extends React.Component {
   instantiateContract() {
     const contract = require('truffle-contract');
     const flightTickets = contract(FlightTicketsContract);
+    const flightTicketsRegistry = contract(FlightTicketsRegistryContract);
     flightTickets.setProvider(this.state.web3.currentProvider);
+    flightTicketsRegistry.setProvider(this.state.web3.currentProvider);
 
     // Get accounts.
     this.state.web3.eth.getAccounts((error, accounts) => {
@@ -66,58 +69,62 @@ class App extends React.Component {
         console.log('Failed to get accounts. Error: ', error);
         return;
       }
-      // Get our main contract
-      flightTickets.deployed().then(instance => {
-        // Save the instance of the contract and the account
-        return this.setState({
-          contract: instance,
-          account: accounts[0]
-        });
-      }).then(result => {
-        // Detect when account changes
-        setInterval(() => {
-          this.state.web3.eth.getAccounts((error, accounts) => {
-            if (accounts[0] !== this.state.account) {
-              // Update account in the state, update the user rights, flush my purchases
-              this.setState({
-                account: accounts[0],
-                userPurchasedTickets: []
-              }, () => {
-                this.setUserRights();
-                this.initMyPurchases();
-              });
-            }
+      // Get registry contract
+      flightTicketsRegistry.deployed()
+        .then(instance => instance.backendContract.call())
+        // Get our main contract from the address stored in the registry
+        .then(backendAddress => flightTickets.at(backendAddress))
+        .then(instance => {
+          // Save the instance of the contract and the account
+          return this.setState({
+            contract: instance,
+            account: accounts[0]
           });
-        }, 500);
-        // Load the list of airlines from the contract
-        return this.loadAirlines();
-      }).then(result => {
-        // Set the user rights depending on their account
-        return this.setUserRights();
-      }).then(result => {
-        // Update the list every time when an airline is added/updated/removed
-        let updateAirlinesCallback = (error, result) => {
-          if (error) {
-            console.log(error);
-            return;
+        }).then(() => {
+          // Detect when account changes
+          setInterval(() => {
+            this.state.web3.eth.getAccounts((error, accounts) => {
+              if (accounts[0] !== this.state.account) {
+                // Update account in the state, update the user rights, flush my purchases
+                this.setState({
+                  account: accounts[0],
+                  userPurchasedTickets: []
+                }, () => {
+                  this.setUserRights();
+                  this.initMyPurchases();
+                });
+              }
+            });
+          }, 500);
+          // Load the list of airlines from the contract
+          return this.loadAirlines();
+        }).then(result => {
+          // Set the user rights depending on their account
+          return this.setUserRights();
+        }).then(result => {
+          // Update the list every time when an airline is added/updated/removed
+          let updateAirlinesCallback = (error, result) => {
+            if (error) {
+              console.log(error);
+              return;
+            }
+            // Update the list of airlines and update the rights of the user
+            this.loadAirlines().then(this.setUserRights);
           }
-          // Update the list of airlines and update the rights of the user
-          this.loadAirlines().then(this.setUserRights);
-        }
-        this.state.contract.LogAirlineAdded().watch(updateAirlinesCallback);
-        this.state.contract.LogAirlineUpdated().watch(updateAirlinesCallback);
-        this.state.contract.LogAirlineRemoved().watch(updateAirlinesCallback);
-        // Update the user rights when the contract changes its owner (very rare case, but still)
-        this.state.contract.OwnershipTransferred().watch(this.setUserRights);
-        // Fill and update My Purchases
-        this.initMyPurchases();
-        // Call other callbacks that might be waiting for the contract to get ready
-        if (typeof this.onContractReady === 'function') {
-          this.onContractReady();
-        }
-      }).catch(error => {
-        console.log(error);
-      });
+          this.state.contract.LogAirlineAdded().watch(updateAirlinesCallback);
+          this.state.contract.LogAirlineUpdated().watch(updateAirlinesCallback);
+          this.state.contract.LogAirlineRemoved().watch(updateAirlinesCallback);
+          // Update the user rights when the contract changes its owner (very rare case, but still)
+          this.state.contract.OwnershipTransferred().watch(this.setUserRights);
+          // Fill and update My Purchases
+          this.initMyPurchases();
+          // Call other callbacks that might be waiting for the contract to get ready
+          if (typeof this.onContractReady === 'function') {
+            this.onContractReady();
+          }
+        }).catch(error => {
+          console.log(error);
+        });
     });
   }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import getWeb3 from './utils/getWeb3';
 import FlightTicketsContract from '../build/contracts/FlightTickets.json';
-import AirlineList from './AirlineList';
+import AdminPanel from './AdminPanel';
 import MyAirline from './MyAirline';
 import TicketBrowser from './TicketBrowser';
 import MyPurchases from './MyPurchases';
@@ -299,7 +299,7 @@ class App extends React.Component {
               <Tab icon={<FlightIcon />} label="My Airline" value={2} />
             )}
             {this.state.userIsAdmin && (
-              <Tab icon={<BuildIcon />} label="Admin: Manage Airlines" value={3} />
+              <Tab icon={<BuildIcon />} label="Admin Panel" value={3} />
             )}
           </Tabs>
         </Paper>
@@ -337,7 +337,7 @@ class App extends React.Component {
             />
           )}
           {this.state.activeTab === 3 && this.state.userIsAdmin && (
-            <AirlineList
+            <AdminPanel
               airlines={this.state.airlines}
               setAirlines={this.setAirlines}
               web3={this.state.web3}

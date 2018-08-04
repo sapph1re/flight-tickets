@@ -2,6 +2,9 @@ import React from 'react';
 import AirlineForm from "./AirlineForm";
 import EditableTable from "./EditableTable";
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import grey from '@material-ui/core/colors/grey';
 
 /**
  * A list of airlines with a form to add a new airline and edit/remove functionality
@@ -11,7 +14,7 @@ import Grid from '@material-ui/core/Grid';
  * @param contract - instance of the smart contract
  * @param account - address of the user
  */
-class AirlineList extends React.Component {
+class AdminPanel extends React.Component {
   constructor(props) {
     super(props);
 
@@ -21,8 +24,22 @@ class AirlineList extends React.Component {
       // errors to display during the edit mode
       editAirlineErrors: {},
       // saved version of an airline before editing, to restore the values on cancel
-      airlineBeforeEditing: null
+      airlineBeforeEditing: null,
+      isContractPaused: false,
+      isPausing: false,
+      isUnpausing: false
     };
+
+    // Check contract Paused state and listen for updates on that
+    this.props.contract.paused.call().then(paused => {
+      this.setState({ isContractPaused: paused });
+    });
+    this.props.contract.Pause().watch(() => {
+      this.setState({ isContractPaused: true, isPausing: false });
+    });
+    this.props.contract.Unpause().watch(() => {
+      this.setState({ isContractPaused: false, isUnpausing: false });
+    });
   }
 
   /**
@@ -192,11 +209,38 @@ class AirlineList extends React.Component {
     );
   }
 
+  pauseContract = () => {
+    this.setState({ isPausing: true });
+    this.props.contract.pause({ from: this.props.account }).catch(() => {
+      this.setState({ isPausing: false });
+    });
+  }
+
+  unpauseContract = () => {
+    this.setState({ isUnpausing: true });
+    this.props.contract.unpause({ from: this.props.account }).catch(() => {
+      this.setState({ isUnpausing: false });
+    });
+  }
+
   render() {
     return (
       <div>
-        <h1>Airlines</h1>
+        {this.state.isContractPaused ? (
+          <Button onClick={this.unpauseContract} color="secondary" variant="contained">
+            {this.state.isUnpausing ? (
+              <CircularProgress size={20} style={{ color: grey[200] }} />
+            ) : 'Unpause Contract'}
+          </Button>
+        ) : (
+            <Button onClick={this.pauseContract} color="secondary" variant="contained">
+              {this.state.isPausing ? (
+                <CircularProgress size={20} style={{ color: grey[200] }} />
+              ) : 'Pause Contract'}
+            </Button>
+          )}
 
+        <h1>Airlines</h1>
         <Grid container spacing={24}>
           <Grid item xs={12}>
             <AirlineForm
@@ -242,4 +286,4 @@ class AirlineList extends React.Component {
   }
 }
 
-export default AirlineList;
+export default AdminPanel;

@@ -82,6 +82,7 @@ The tests cover:
 * searching for tickets
 * buying tickets
 * emergency stop
+* upgradability
 
 To run the tests:
 ```

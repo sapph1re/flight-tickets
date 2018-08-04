@@ -236,4 +236,14 @@ contract('FlightTickets', accounts => {
     assert.ok(await flightTickets.airlineExists('New Test Airline'));
   });
 
+  it('kills the contract', async () => {
+    await flightTickets.destroy();
+    try {
+      await flightTickets.owner.call();
+    } catch (e) {
+      return;
+    }
+    assert.fail();
+  });
+
 });

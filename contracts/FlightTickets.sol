@@ -2,12 +2,13 @@ pragma solidity ^0.4.24;
 
 import "../installed_contracts/zeppelin/contracts/math/SafeMath.sol";
 import "../installed_contracts/zeppelin/contracts/lifecycle/Pausable.sol";
+import "../installed_contracts/zeppelin/contracts/lifecycle/Destructible.sol";
 
 /**
  * @title Flight tickets marketplace for customers and airlines
  * @author Roman Vinogradov <dev.romanv@gmail.com>
  */
-contract FlightTickets is Pausable {
+contract FlightTickets is Pausable, Destructible {
 
   // SafeMath is a library that allows overflow-safe arithmetic operations
   // Used like this: a.add(b) or a.mul(b) where a & b are uint256

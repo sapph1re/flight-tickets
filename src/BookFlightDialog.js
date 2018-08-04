@@ -64,11 +64,16 @@ class BookFlightDialog extends React.Component {
       // Submit the data otherwise and display a loader
       this.setState({ isProcessing: true });
       this.props.onSubmit(data, () => {
-        // When the processing is done, remove the loader
+        // When the processing is done, remove the loader and clear the form
         this.setState({
           isProcessing: false,
           firstName: '',
           lastName: ''
+        });
+      }, () => {
+        // When error occured, just remove the loader
+        this.setState({
+          isProcessing: false
         });
       });
     }

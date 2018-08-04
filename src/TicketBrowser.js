@@ -256,7 +256,7 @@ class TicketBrowser extends React.Component {
     });
   }
 
-  submitBooking = (data, callback) => {
+  submitBooking = (data, onSuccess, onFailure) => {
     let tId1 = data.flight.tickets[0].tId;
     let tId2 = data.flight.tickets.length > 1 ? data.flight.tickets[1].tId : 0;
     this.props.contract.bookFlight(
@@ -265,14 +265,14 @@ class TicketBrowser extends React.Component {
       data.lastName,
       { from: this.props.account, value: data.flight.priceTotal }
     ).then(result => {
-      callback();
+      onSuccess();
       this.setState({
         isBookDialogOpen: false,
         isSuccessDialogOpen: true
       });
       // Process results of the transaction
       this.props.onBookingComplete(result);
-    });
+    }).catch(onFailure);
   }
 
   closeSuccessDialog = (goToMyPurchases) => {

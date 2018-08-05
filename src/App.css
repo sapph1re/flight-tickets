@@ -143,3 +143,35 @@ h1, h2, h3 {
 .sold-ticket-paper .ticket {
   margin-top: 5px;
 }
+
+#airline-logo-input {
+  display: none;
+}
+
+.airline-logo-card {
+  display: flex;
+  position: relative;
+}
+
+.airline-logo-form-image {
+  width: 128px;
+  height: 64px;
+  margin-right: 20px;
+  margin-top: 10px;
+}
+
+.airline-logo-actions {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+}
+
+.airline-logo-button {
+  white-space: nowrap;
+}
+
+.airline-logo-loader {
+  position: absolute;
+  top: 15px;
+  left: 40px;
+}

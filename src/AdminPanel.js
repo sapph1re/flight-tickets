@@ -13,6 +13,7 @@ import grey from '@material-ui/core/colors/grey';
  * @param web3 - instance of web3
  * @param contract - instance of the smart contract
  * @param account - address of the user
+ * @param ipfs - IPFS interface
  */
 class AdminPanel extends React.Component {
   constructor(props) {
@@ -245,7 +246,9 @@ class AdminPanel extends React.Component {
           <Grid item xs={12}>
             <AirlineForm
               onValidate={this.airlineValidate}
-              onSubmit={this.airlineSubmit} />
+              onSubmit={this.airlineSubmit}
+              ipfs={this.props.ipfs}
+            />
           </Grid>
           <Grid item xs={12}>
             <EditableTable

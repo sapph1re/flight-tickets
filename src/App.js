@@ -27,6 +27,7 @@ class App extends React.Component {
       web3: null,
       contract: null,
       account: null,
+      ipfs: null,
       // the list of airlines
       airlines: [],
       // whether the user is the admin or not
@@ -50,18 +51,24 @@ class App extends React.Component {
           web3: results.web3
         });
         // Instantiate contract once web3 is provided.
-        this.instantiateContract();
+        this.init();
       }).catch(() => {
         console.log('Error finding web3.')
       });
   }
 
-  instantiateContract() {
+  init() {
+    // Instantiate the contracts
     const contract = require('truffle-contract');
     const flightTickets = contract(FlightTicketsContract);
     const flightTicketsRegistry = contract(FlightTicketsRegistryContract);
     flightTickets.setProvider(this.state.web3.currentProvider);
     flightTicketsRegistry.setProvider(this.state.web3.currentProvider);
+
+    // Initialize IPFS interface
+    const IPFS = require('ipfs-api');
+    const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+    this.setState({ ipfs: ipfs });
 
     // Get accounts.
     this.state.web3.eth.getAccounts((error, accounts) => {
@@ -350,6 +357,7 @@ class App extends React.Component {
               web3={this.state.web3}
               contract={this.state.contract}
               account={this.state.account}
+              ipfs={this.state.ipfs}
             />
           )}
 

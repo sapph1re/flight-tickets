@@ -3,9 +3,10 @@ const contract = require('truffle-contract');
 const contractData = require('../build/contracts/FlightTickets.json');
 const sampleData = require('../sample-data.json');
 
-ETHRPC = "http://localhost:8545";
+const ethRPC = "http://localhost:8545";
+const aLogoDefault = 'QmZ9Nbn5Bfcf28p5Mn9Aobw2hvkW4ANxJJDBZdh5kUyQPm';
 
-var web3 = new Web3(new Web3.providers.HttpProvider(ETHRPC));
+var web3 = new Web3(new Web3.providers.HttpProvider(ethRPC));
 const FlightTickets = contract(contractData);
 FlightTickets.setProvider(web3.currentProvider);
 
@@ -26,7 +27,7 @@ async function populate(flightTickets, accounts) {
   try {
     // check if we have the owner's account
     if (await flightTickets.owner.call() !== accounts[0]) {
-      return console.log('Deploy the contract from the first account provided by ', ETHRPC);
+      return console.log('Deploy the contract from the first account provided by ', ethRPC);
     }
     for (let i = 0; i < sampleData.data.length; i++) {
       let row = sampleData.data[i];
@@ -35,8 +36,10 @@ async function populate(flightTickets, accounts) {
       let aOwner = i <= 2 ? (i === 0 ? accounts[0] : accounts[1]) : accounts[2];
       console.log('Adding airline: ' + row.airline.aName + ' owned by ' + aOwner + '...');
       await flightTickets.addAirline(
-        row.airline.aName, aOwner,
-        { from: accounts[0], gas: 200000 }
+        row.airline.aName,
+        aOwner,
+        row.airline.aLogo ? row.airline.aLogo : aLogoDefault,
+        { from: accounts[0], gas: 300000 }
       );
       let aId = Number(await flightTickets.aIdLast.call());
       for (let j = 0; j < row.tickets.length; j++) {

@@ -1,7 +1,8 @@
 {
     "data": [{
         "airline": {
-            "aName": "AirAsia"
+            "aName": "AirAsia",
+            "aLogo": "QmRTjhezoUUPhZk8vkK865fy3jFerpNcuQ2rAgCS3DvtMT"
         },
         "tickets": [{
             "tFrom": "Bangkok",
@@ -230,7 +231,8 @@
         }]
     }, {
         "airline": {
-            "aName": "Emirates Airlines"
+            "aName": "Emirates Airlines",
+            "aLogo": "QmcjBJX4sZypPiaxLAAkd9qWVUk5cALdEaUNH1XT6amivM"
         },
         "tickets": [{
             "tFrom": "Dubai",
@@ -403,7 +405,8 @@
         }]
     }, {
         "airline": {
-            "aName": "Singapore Airlines"
+            "aName": "Singapore Airlines",
+            "aLogo": "QmP9AaBWGwKkuvsaivwL7HcevHZ96DoYwZzzX5u5oYLfb9"
         },
         "tickets": [{
             "tFrom": "Singapore",

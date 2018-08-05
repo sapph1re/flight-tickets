@@ -158,6 +158,7 @@ h1, h2, h3 {
   height: 64px;
   margin-right: 20px;
   margin-top: 10px;
+  margin-left: 10px;
 }
 
 .airline-logo-actions {
@@ -173,10 +174,11 @@ h1, h2, h3 {
 .airline-logo-loader {
   position: absolute;
   top: 15px;
-  left: 40px;
+  left: 50px;
 }
 
 .airline-logo {
   width: 128px;
   height: 64px;
+  margin: 5px;
 }

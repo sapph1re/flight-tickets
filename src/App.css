@@ -78,12 +78,17 @@ h1, h2, h3 {
   white-space: nowrap;
 }
 
+.booking-passenger-details {
+  margin-top: 20px;
+  text-align: center;
+}
+
 .book-button, .buy-now-button {
   margin: 10px 15px !important;
 }
 
 .booking-details-field {
-  width: 50%;
+  width: 400px;
 }
 
 .search-result-paper, .my-purchase-paper, .sold-ticket-paper {
@@ -181,4 +186,10 @@ h1, h2, h3 {
   width: 128px;
   height: 64px;
   margin: 5px;
+}
+
+.airline-logo-small {
+  width: 96px;
+  height: 48px;
+  margin: 0;
 }

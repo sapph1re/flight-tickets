@@ -1,6 +1,7 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid';
 
+const ipfsGatewayPrefix = 'https://ipfs.io/ipfs/';
 
 function formatDate(timestamp) {
   const addZero = i => (i < 10 ? "0" + i : i);
@@ -30,7 +31,10 @@ function Ticket(props) {
         <div className="city">{ticket.tTo}</div>
         <div className="datetime">{formatDate(ticket.tArrival)}</div>
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={2}>
+        <img src={ipfsGatewayPrefix + ticket.airline.aLogo} className="airline-logo-small" alt="logo" />
+      </Grid>
+      <Grid item xs={2}>
         <div className="airline-and-price">
           <div>by <span className="airline">{ticket.airline.aName}</span></div>
           <div>for <span className="price">{formatETH(ticket.tPrice)}</span></div>

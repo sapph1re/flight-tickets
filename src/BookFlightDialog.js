@@ -88,7 +88,7 @@ class BookFlightDialog extends React.Component {
           open={isOpen}
           onClose={onClose}
           fullWidth
-          maxWidth='md'
+          maxWidth='lg'
         >
           <DialogTitle>Book Your Flight</DialogTitle>
           <DialogContent>
@@ -97,27 +97,33 @@ class BookFlightDialog extends React.Component {
               formatETH={formatETH}
               onClickBook={null}
             />
-            <p>Please enter passenger details:</p>
-            <TextField
-              name="firstName"
-              placeholder="First name"
-              label="First name"
-              value={this.state.firstName}
-              onChange={e => this.change(e)}
-              helperText={this.state.firstNameError}
-              error={this.state.firstNameError.length > 0}
-              className="booking-details-field"
-            />
-            <TextField
-              name="lastName"
-              placeholder="Last name"
-              label="Last name"
-              value={this.state.lastName}
-              onChange={e => this.change(e)}
-              helperText={this.state.lastNameError}
-              error={this.state.lastNameError.length > 0}
-              className="booking-details-field"
-            />
+            <div className="booking-passenger-details">
+              <p>Please enter passenger details:</p>
+              <div>
+                <TextField
+                  name="firstName"
+                  placeholder="First name"
+                  label="First name"
+                  value={this.state.firstName}
+                  onChange={e => this.change(e)}
+                  helperText={this.state.firstNameError}
+                  error={this.state.firstNameError.length > 0}
+                  className="booking-details-field"
+                />
+              </div>
+              <div>
+                <TextField
+                  name="lastName"
+                  placeholder="Last name"
+                  label="Last name"
+                  value={this.state.lastName}
+                  onChange={e => this.change(e)}
+                  helperText={this.state.lastNameError}
+                  error={this.state.lastNameError.length > 0}
+                  className="booking-details-field"
+                />
+              </div>
+            </div>
           </DialogContent>
           <DialogActions>
             <Button onClick={onClose} color="primary">

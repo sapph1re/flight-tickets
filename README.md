@@ -70,6 +70,8 @@ The first ganache address is the owner of the contract and the admin of the dapp
 
 Feel free to play around with airlines and their owners in the admin panel, as well as with the tickets of your airlines in the airline panel. You may add more tickets to new destinations and then try finding and buying them in the "Search Tickets" tab.
 
+Every airline has a logo, which is stored in IPFS. Sample data has logos uploaded from the `sample-images` directory. One of them is missing, Hainan Airlines, so that you can try setting it yourself, you'll find the logo itself in the directory.
+
 You can also pause/unpause the contract when logged in as admin. In the Admin Panel you have a button "Pause Contract", which stops the contract and it will refuse to perform any state-changing operations described above until you unpause it.
 
 ## Testing

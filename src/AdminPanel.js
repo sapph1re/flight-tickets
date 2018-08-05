@@ -270,6 +270,12 @@ class AdminPanel extends React.Component {
                   type: 'text'
                 },
                 {
+                  name: 'Logo',
+                  prop: 'aLogo',
+                  editable: false,
+                  type: 'ipfs-image'
+                },
+                {
                   name: 'Airline Name',
                   prop: 'aName',
                   editable: true,

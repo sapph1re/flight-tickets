@@ -9,6 +9,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 
+
+const ipfsGatewayPrefix = 'https://ipfs.io/ipfs/';
+
 /**
  * A list of airline's tickets with a form to add a new ticket and edit/remove functionality
  * @param airlines - list of airlines owned by the user
@@ -364,6 +367,14 @@ class MyAirline extends React.Component {
             ))}
           </Select>
         </FormControl>
+
+        <div>
+          <img
+            src={ipfsGatewayPrefix + this.props.airlines[this.state.airlineIdx].aLogo}
+            className="airline-logo"
+            alt="logo"
+          />
+        </div>
 
         <h2>Sold Tickets</h2>
 

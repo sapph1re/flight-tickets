@@ -18,12 +18,14 @@ function formatDate(timestamp) {
   const addZero = i => (i < 10 ? "0" + i : i);
   let d = new Date(timestamp * 1000);
   let day = addZero(d.getUTCDate());
-  let month = addZero(d.getUTCMonth()+1);
+  let month = addZero(d.getUTCMonth() + 1);
   let year = addZero(d.getUTCFullYear());
   let hours = addZero(d.getUTCHours());
   let minutes = addZero(d.getUTCMinutes());
   return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
 }
+
+const ipfsGatewayPrefix = 'https://ipfs.io/ipfs/';
 
 
 // Customizing the look of the table cells
@@ -82,6 +84,9 @@ class EditableTable extends React.Component {
     switch (dataColumn.type) {
       case 'datetime':
         value = formatDate(value);
+        break;
+      case 'ipfs-image':
+        value = <img src={ipfsGatewayPrefix + value} className="airline-logo" alt="logo" />;
         break;
       case 'text':
       default:

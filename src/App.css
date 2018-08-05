@@ -175,3 +175,8 @@ h1, h2, h3 {
   top: 15px;
   left: 40px;
 }
+
+.airline-logo {
+  width: 128px;
+  height: 64px;
+}

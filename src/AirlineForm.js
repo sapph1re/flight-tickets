@@ -24,6 +24,7 @@ class AirlineForm extends React.Component {
       aName: '',
       aOwner: '',
       aLogoHash: defaultLogoHash,
+      airlineLogoFile: '',
       // errors for the inputs
       aNameError: '',
       aOwnerError: '',
@@ -97,7 +98,8 @@ class AirlineForm extends React.Component {
         this.setState({
           aName: '',
           aOwner: '',
-          aLogoHash: defaultLogoHash
+          aLogoHash: defaultLogoHash,
+          airlineLogoFile: ''
         });
       }
     });
@@ -112,6 +114,7 @@ class AirlineForm extends React.Component {
               id="airline-logo-input"
               ref={this.airlineLogoInput}
               type="file"
+              value={this.state.airlineLogoFile}
               onChange={this.captureFile}
             />
             <Card className="airline-logo-card">

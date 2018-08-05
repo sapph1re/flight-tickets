@@ -83,6 +83,7 @@ class AdminPanel extends React.Component {
     this.props.contract.addAirline(
       this.props.web3.toHex(airline.aName),
       airline.aOwner,
+      airline.aLogo,
       { from: this.props.account }
     ).then(() => {
       // Add the new airline to the list, but grayed out (inProgress: true)
@@ -166,6 +167,7 @@ class AdminPanel extends React.Component {
           this.state.airlineBeforeEditing.aId,
           this.props.web3.toHex(airlineEdited.aName),
           airlineEdited.aOwner,
+          airlineEdited.aLogo,
           { from: this.props.account }
         ).then(() => {
           // Turn off the edit mode and gray out the airline in the table until the transaction completes

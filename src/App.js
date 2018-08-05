@@ -187,6 +187,7 @@ class App extends React.Component {
           aId: row[0].toString(),
           aName: this.state.web3.toUtf8(row[1]),
           aOwner: row[2],
+          aLogo: row[3],
           inProgress: false
         });
       });
@@ -213,7 +214,8 @@ class App extends React.Component {
         let airline = {
           aId: Number(result[0]),
           aName: this.state.web3.toUtf8(result[1]),
-          aOwner: result[2]
+          aOwner: result[2],
+          aLogo: result[3]
         }
         return {
           tId: Number(data[0]),

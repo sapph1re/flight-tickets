@@ -21,6 +21,8 @@ contract FlightTickets is Pausable, Destructible {
     bytes32 aName;
     // Ethereum address of the owner who will manage this airline
     address aOwner;
+    // IPFS hash of the airline logo image
+    string aLogo;
   }
 
   struct Ticket {
@@ -63,8 +65,8 @@ contract FlightTickets is Pausable, Destructible {
   uint256 public purchaseIdLast;
 
   // When an airline in the list is added, changed or deleted
-  event LogAirlineAdded(uint256 indexed aId, bytes32 indexed aName, address aOwner);
-  event LogAirlineUpdated(uint256 indexed aId, bytes32 newAName, address newAOwner);
+  event LogAirlineAdded(uint256 indexed aId, bytes32 indexed aName, address aOwner, string aLogo);
+  event LogAirlineUpdated(uint256 indexed aId, bytes32 newAName, address newAOwner, string newALogo);
   event LogAirlineRemoved(uint256 indexed aId);
   // When a ticket is added, changed or deleted
   event LogTicketAdded(
@@ -117,7 +119,7 @@ contract FlightTickets is Pausable, Destructible {
 
   /** We don't want to accept payments without booking a specific flight */
   function () public payable {
-    revert();
+    revert("Plain payments not accepted");
   }
 
   /**
@@ -212,11 +214,12 @@ contract FlightTickets is Pausable, Destructible {
   function getAirlineById(uint256 _aId) public view returns(
     uint256 aId,
     bytes32 aName,
-    address aOwner
+    address aOwner,
+    string aLogo
   ) {
     require(airlineIdIndex[_aId].exists, "Airline does not exist");
     Airline storage airline = airlines[airlineIdIndex[_aId].index];
-    return (airline.aId, airline.aName, airline.aOwner);
+    return (airline.aId, airline.aName, airline.aOwner, airline.aLogo);
   }
 
   /**
@@ -396,18 +399,18 @@ contract FlightTickets is Pausable, Destructible {
    * @param _aName Name of the airline, must be unique (transaction will fail otherwise)
    * @param _aOwner Address of the airline owner, can be any Ethereum address
    */
-  function addAirline(bytes32 _aName, address _aOwner) public onlyOwner whenNotPaused {
+  function addAirline(bytes32 _aName, address _aOwner, string _aLogo) public onlyOwner whenNotPaused {
     require(!airlineExists(_aName), "Airline name is already taken");
     // generate new airline ID
     uint256 _aId = aIdLast.add(1);
     aIdLast = _aId;
     // add a new Airline record to airlines array and save its index in the array
-    uint256 _index = airlines.push(Airline(_aId, _aName, _aOwner)) - 1;
+    uint256 _index = airlines.push(Airline(_aId, _aName, _aOwner, _aLogo)) - 1;
     airlineIdIndex[_aId].exists = true;
     airlineIdIndex[_aId].index = _index;
     // occupy the name
     airlineNameExists[_aName] = true;
-    emit LogAirlineAdded(_aId, _aName, _aOwner);
+    emit LogAirlineAdded(_aId, _aName, _aOwner, _aLogo);
   }
 
   /**
@@ -416,7 +419,7 @@ contract FlightTickets is Pausable, Destructible {
    * @param _newAName New name of the airline, must be unique or remain unchanged
    * @param _newAOwner New owner of the airline
    */
-  function editAirline(uint256 _aId, bytes32 _newAName, address _newAOwner)
+  function editAirline(uint256 _aId, bytes32 _newAName, address _newAOwner, string _newALogo)
     public
     onlyOwner
     whenNotPaused
@@ -432,9 +435,10 @@ contract FlightTickets is Pausable, Destructible {
       airlineNameExists[_newAName] = true;
       airlines[_index].aName = _newAName;
     }
-    // simply update the owner
+    // simply update the owner and the logo
     airlines[_index].aOwner = _newAOwner;
-    emit LogAirlineUpdated(_aId, _newAName, _newAOwner);
+    airlines[_index].aLogo = _newALogo;
+    emit LogAirlineUpdated(_aId, _newAName, _newAOwner, _newALogo);
   }
 
   /**

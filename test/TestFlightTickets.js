@@ -13,6 +13,8 @@ function toUTCTimestamp(datestr) {
   return Date.parse(datestr + '+00:00') / 1000;
 }
 
+const aLogoHash = 'QmZ9Nbn5Bfcf28p5Mn9Aobw2hvkW4ANxJJDBZdh5kUyQPm';
+
 contract('FlightTickets', accounts => {
   let flightTickets;
 
@@ -26,12 +28,12 @@ contract('FlightTickets', accounts => {
 
   it('does not allow to add an airline from a non-owner', async () => {
     assert.ok(await hasReverted(
-      flightTickets.addAirline('Test Airline', accounts[2], { from: accounts[1] })
+      flightTickets.addAirline('Test Airline', accounts[2], aLogoHash, { from: accounts[1] })
     ));
   });
 
   it('adds an airline from the owner', async () => {
-    await flightTickets.addAirline('Test Airline', accounts[2], { from: accounts[0] });
+    await flightTickets.addAirline('Test Airline', accounts[2], aLogoHash, { from: accounts[0] });
     assert.equal(await flightTickets.getAirlinesCount.call(), 1);
   });
 
@@ -42,31 +44,34 @@ contract('FlightTickets', accounts => {
 
   it('does not allow to add an airline when the name is taken', async () => {
     assert.ok(await hasReverted(
-      flightTickets.addAirline('Test Airline', accounts[2], { from: accounts[0] })
+      flightTickets.addAirline('Test Airline', accounts[2], aLogoHash, { from: accounts[0] })
     ));
   });
 
   it('stores the airline data', async () => {
-    let [aId, aName, aOwner] = await flightTickets.airlines.call(0);
+    let [aId, aName, aOwner, aLogo] = await flightTickets.airlines.call(0);
     aName = web3.toUtf8(aName);
     assert.equal(aId, 1);
     assert.equal(aName, 'Test Airline');
     assert.equal(aOwner, accounts[2]);
+    assert.equal(aLogo, aLogoHash);
   });
 
   it('edits an airline', async () => {
-    await flightTickets.editAirline(1, 'New Airline Name', accounts[3], { from: accounts[0] });
-    let [aId, aName, aOwner] = await flightTickets.airlines.call(0);
+    let aNewLogoHash = 'QmP8AdSRBQeMNwt6kyufDDssrA6RxrPB74LEoJgMpYTa6S';
+    await flightTickets.editAirline(1, 'New Airline Name', accounts[3], aNewLogoHash, { from: accounts[0] });
+    let [aId, aName, aOwner, aLogo] = await flightTickets.airlines.call(0);
     aName = web3.toUtf8(aName);
     assert.equal(aId, 1);
     assert.equal(aName, 'New Airline Name');
     assert.equal(aOwner, accounts[3]);
+    assert.equal(aLogo, aNewLogoHash);
   });
 
   it('does not allow to edit an airline when the new name is taken', async () => {
-    await flightTickets.addAirline('Second Airline', accounts[4], { from: accounts[0] });
+    await flightTickets.addAirline('Second Airline', accounts[4], aLogoHash, { from: accounts[0] });
     assert.ok(await hasReverted(
-      flightTickets.editAirline(1, 'Second Airline', accounts[3], { from: accounts[0] })
+      flightTickets.editAirline(1, 'Second Airline', accounts[3], aLogoHash, { from: accounts[0] })
     ));
   });
 
@@ -184,7 +189,7 @@ contract('FlightTickets', accounts => {
 
   it('books a direct flight', async () => {
     let [tId, aId, , , tPrice, tQuantity, ,] = await flightTickets.tickets.call(0);
-    let [, , aOwner] = await flightTickets.getAirlineById.call(aId);
+    let [, , aOwner,] = await flightTickets.getAirlineById.call(aId);
     let aBalance = await web3.eth.getBalance(aOwner);
     // sending 1 eth more than needed to test that the change is returned
     let amount = Number(tPrice) + Number(web3.toWei(1, 'ether'));
@@ -196,7 +201,7 @@ contract('FlightTickets', accounts => {
   });
 
   it('books a one-stop flight', async () => {
-    await flightTickets.addAirline('Third Airline', accounts[5], { from: accounts[0] });
+    await flightTickets.addAirline('Third Airline', accounts[5], aLogoHash, { from: accounts[0] });
     aIdNew = await flightTickets.aIdLast.call();
     await flightTickets.addTicket(
       aIdNew, 'Bangkok', 'Dubai', web3.toWei(250, 'finney'), 30,
@@ -206,8 +211,8 @@ contract('FlightTickets', accounts => {
     tIdNew = await flightTickets.tIdLast.call();
     let [tId1, aId1, , , tPrice1, tQuantity1, ,] = await flightTickets.tickets.call(0);
     let [tId2, aId2, , , tPrice2, tQuantity2, ,] = await flightTickets.getTicketById(tIdNew);
-    let [, , aOwner1] = await flightTickets.getAirlineById.call(aId1);
-    let [, , aOwner2] = await flightTickets.getAirlineById.call(aId2);
+    let [, , aOwner1,] = await flightTickets.getAirlineById.call(aId1);
+    let [, , aOwner2,] = await flightTickets.getAirlineById.call(aId2);
     let aBalance1 = await web3.eth.getBalance(aOwner1);
     let aBalance2 = await web3.eth.getBalance(aOwner2);
     // sending 1 eth more than needed to test that the change is returned
@@ -226,13 +231,13 @@ contract('FlightTickets', accounts => {
   it('pauses the contract', async () => {
     await flightTickets.pause();
     assert.ok(await hasReverted(
-      flightTickets.addAirline('New Test Airline', accounts[2], { from: accounts[0] })
+      flightTickets.addAirline('New Test Airline', accounts[2], aLogoHash, { from: accounts[0] })
     ));
   });
 
   it('unpauses the contract', async () => {
     await flightTickets.unpause();
-    await flightTickets.addAirline('New Test Airline', accounts[2], { from: accounts[0] });
+    await flightTickets.addAirline('New Test Airline', accounts[2], aLogoHash, { from: accounts[0] });
     assert.ok(await flightTickets.airlineExists('New Test Airline'));
   });
 

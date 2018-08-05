@@ -1,6 +1,6 @@
-var SafeMath = artifacts.require('../installed_contracts/zeppelin/contracts/math/SafeMath.sol');
-var FlightTickets = artifacts.require("./FlightTickets.sol");
-var FlightTicketsRegistry = artifacts.require("./FlightTicketsRegistry.sol");
+var SafeMath = artifacts.require('SafeMath');
+var FlightTickets = artifacts.require("FlightTickets");
+var FlightTicketsRegistry = artifacts.require("FlightTicketsRegistry");
 
 module.exports = function (deployer) {
   deployer.deploy(SafeMath);

@@ -1,0 +1,117 @@
+[seq,
+  [mstore, 28, [calldataload, 0]],
+  [mstore, 32, 1461501637330902918203684832716283019655932542976],
+  [mstore, 64, 170141183460469231731687303715884105727],
+  [mstore, 96, -170141183460469231731687303715884105728],
+  [mstore, 128, 1701411834604692317316873037158841057270000000000],
+  [mstore, 160, -1701411834604692317316873037158841057280000000000],
+  # Line 15
+  [codecopy, 320, ~codelen, 32],
+  [assert, [iszero, callvalue]],
+  /* checking address input */ [uclamplt, [codeload, ~codelen], [mload, 32]],
+  # Line 17
+  [sstore, 0 <self.owner>, caller],
+  # Line 18
+  [sstore, 1 <self.backendContract>, [mload, 320 <currentBackend>]],
+  [return,
+    0,
+    [lll,
+      [seq,
+        [mstore, 28, [calldataload, 0]],
+        [mstore, 32, 1461501637330902918203684832716283019655932542976],
+        [mstore, 64, 170141183460469231731687303715884105727],
+        [mstore, 96, -170141183460469231731687303715884105728],
+        [mstore, 128, 1701411834604692317316873037158841057270000000000],
+        [mstore, 160, -1701411834604692317316873037158841057280000000000],
+        # Line 21
+        [if,
+          [eq, [mload, 0], 3941399719 <changeBackend>],
+          [seq,
+            [calldatacopy, 320, 4, 32],
+            [assert, [iszero, callvalue]],
+            /* checking address input */ [uclamplt, [calldataload, 4], [mload, 32]],
+            # Line 24
+            [assert, [eq, caller, [sload, 0 <self.owner>]]],
+            # Line 26
+            [if,
+              [ne, [mload, 320 <newBackend>], [sload, 1 <self.backendContract>]],
+              # Line 28
+              [seq,
+                [sstore,
+                  [add,
+                    [sha3_32, 2 <self.previousBackends>],
+                    [uclamplt,
+                      [uclample, [sload, 3 <self.previousBackendsCount>], [mload, 64]],
+                      100]],
+                  [sload, 1 <self.backendContract>]],
+                # Line 29
+                [with,
+                  _stloc,
+                  3 <self.previousBackendsCount>,
+                  [sstore,
+                    _stloc,
+                    [seq,
+                      [assert, [ge, [add, [sload, _stloc], 1], [sload, _stloc]]],
+                      [add, [sload, _stloc], 1]]]],
+                # Line 31
+                [sstore, 1 <self.backendContract>, [mload, 320 <newBackend>]],
+                # Line 33
+                [mstore, 352, [mload, 320 <newBackend>]],
+                [log1,
+                  352,
+                  32,
+                  76469014131054860364557257787483582958377416988854585548387287910135066540825]]],
+            # Line 21
+            stop]],
+        # Line 5
+        [if,
+          [eq, [mload, 0], 2376452955 <owner>],
+          [seq,
+            [assert, [iszero, callvalue]],
+            # Line 7
+            [mstore, 0, [sload, 0 <self.owner>]],
+            [return, 0, 32],
+            # Line 5
+            stop]],
+        # Line 7
+        [if,
+          [eq, [mload, 0], 1869950729 <backendContract>],
+          [seq,
+            [assert, [iszero, callvalue]],
+            # Line 9
+            [mstore, 0, [sload, 1 <self.backendContract>]],
+            [return, 0, 32],
+            # Line 7
+            stop]],
+        # Line 9
+        [if,
+          [eq, [mload, 0], 1343010831 <previousBackends>],
+          [seq,
+            [calldatacopy, 320, 4, 32],
+            [assert, [iszero, callvalue]],
+            /* checking int128 input */ 
+            [clamp,
+              [mload, 96],
+              [calldataload, 4],
+              [mload, 64]],
+            # Line 11
+            [mstore,
+              0,
+              [sload,
+                [add,
+                  [sha3_32, 2 <self.previousBackends>],
+                  [uclamplt, [mload, 320 <arg0>], 100]]]],
+            [return, 0, 32],
+            # Line 9
+            stop]],
+        # Line 11
+        [if,
+          [eq, [mload, 0], 2863775751 <previousBackendsCount>],
+          [seq,
+            [assert, [iszero, callvalue]],
+            # Line 13
+            [mstore, 0, [sload, 3 <self.previousBackendsCount>]],
+            [return, 0, 32],
+            # Line 11
+            stop]]],
+      0]]]

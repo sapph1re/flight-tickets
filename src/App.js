@@ -76,18 +76,16 @@ class App extends React.Component {
         console.log('Failed to get accounts. Error: ', error);
         return;
       }
+      // Save the current account
+      this.setState({ account: accounts[0] });
       // Get registry contract
       flightTicketsRegistry.deployed()
         .then(instance => instance.backendContract.call())
         // Get our main contract from the address stored in the registry
         .then(backendAddress => flightTickets.at(backendAddress))
-        .then(instance => {
-          // Save the instance of the contract and the account
-          return this.setState({
-            contract: instance,
-            account: accounts[0]
-          });
-        }).then(() => {
+        // Save the instance of the contract
+        .then(instance => this.setState({ contract: instance }))
+        .then(() => {
           // Detect when account changes
           setInterval(() => {
             this.state.web3.eth.getAccounts((error, accounts) => {
@@ -297,11 +295,11 @@ class App extends React.Component {
     if (this.state.web3.version.network === '1') {
       return this.renderMessage('You are connected to Ethereum mainnet! You should switch to a testnet.');
     }
-    if (!this.state.contract) {
-      return this.renderMessage('Connecting to contracts...');
-    }
     if (!this.state.account) {
-      return this.renderMessage('Getting user account...');
+      return this.renderMessage('Getting user account... Make sure you are logged in with MetaMask.');
+    }
+    if (!this.state.contract) {
+      return this.renderMessage('Connecting to the contracts... It may take a while, please be patient.');
     }
     return (
       <div className="App">

@@ -88,7 +88,7 @@ class BookFlightDialog extends React.Component {
           open={isOpen}
           onClose={onClose}
           fullWidth
-          maxWidth='lg'
+          maxWidth={false}
         >
           <DialogTitle>Book Your Flight</DialogTitle>
           <DialogContent>

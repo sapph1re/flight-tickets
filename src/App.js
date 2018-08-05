@@ -282,21 +282,26 @@ class App extends React.Component {
     this.setState({ activeTab: value });
   };
 
+  renderMessage = (message) => (
+    <div className="App" style={{ textAlign: 'center', marginTop: 100 }}>
+      {message}
+    </div>
+  );
+
   render() {
     if (!this.state.web3) {
-      return (
-        <div className="App" style={{ textAlign: 'center', marginTop: 100 }}>
-          Waiting for web3...
-        </div>);
+      return this.renderMessage('Waiting for web3...');
     }
     // Make sure the user does not accidentially spend real ETH here
     // Remove this block in production
     if (this.state.web3.version.network === '1') {
-      return (
-        <div className="App" style={{ textAlign: 'center', marginTop: 100 }}>
-          You are connected to Ethereum mainnet! You should switch to a testnet.
-        </div>
-      );
+      return this.renderMessage('You are connected to Ethereum mainnet! You should switch to a testnet.');
+    }
+    if (!this.state.contract) {
+      return this.renderMessage('Connecting to contracts...');
+    }
+    if (!this.state.account) {
+      return this.renderMessage('Getting user account...');
     }
     return (
       <div className="App">

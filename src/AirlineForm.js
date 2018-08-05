@@ -111,7 +111,7 @@ class AirlineForm extends React.Component {
         <Grid container spacing={24}>
           <Grid item xs={3}>
             <input
-              id="airline-logo-input"
+              className="airline-logo-input"
               ref={this.airlineLogoInput}
               type="file"
               value={this.state.airlineLogoFile}

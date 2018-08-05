@@ -5,6 +5,12 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import grey from '@material-ui/core/colors/grey';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardMedia from '@material-ui/core/CardMedia';
+
+const defaultLogoHash = 'QmZ9Nbn5Bfcf28p5Mn9Aobw2hvkW4ANxJJDBZdh5kUyQPm';
+const ipfsGatewayPrefix = 'https://ipfs.io/ipfs/';
 
 /**
  * A list of airlines with a form to add a new airline and edit/remove functionality
@@ -26,10 +32,14 @@ class AdminPanel extends React.Component {
       editAirlineErrors: {},
       // saved version of an airline before editing, to restore the values on cancel
       airlineBeforeEditing: null,
+      editAirlineLogoFile: '',
+      isEditUploading: false,
       isContractPaused: false,
       isPausing: false,
       isUnpausing: false
     };
+
+    this.editAirlineLogoInput = React.createRef();
 
     // Check contract Paused state and listen for updates on that
     this.props.contract.paused.call().then(paused => {
@@ -110,7 +120,7 @@ class AdminPanel extends React.Component {
       // Gas limit is explicitly set here because MetaMask underestimates the gas usage
       // when some storage is freed in the transaction. Actual gas usage is lower than the
       // required limit, because a part of the gas is refunded at the end of the transaction
-      { from: this.props.account, gas: 80000 }
+      { from: this.props.account, gas: 120000 }
     ).then(() => {
       // Gray out the airline in our table
       // It will disappear completely automatically when the transaction completes
@@ -142,6 +152,8 @@ class AdminPanel extends React.Component {
 
   /** Finish editing, save the changes to the contract and update the table */
   finishEditing = () => {
+    if (this.state.isEditUploading)
+      return;
     let airlineEdited = this.props.airlines[this.state.editAirlineIdx];
     // Clear the old errors first
     this.setState({
@@ -151,6 +163,7 @@ class AdminPanel extends React.Component {
     if (airlineEdited === this.state.airlineBeforeEditing) {
       return this.setState({
         editAirlineIdx: -1,
+        editAirlineLogoFile: '',
         airlineBeforeEditing: null
       });
     }
@@ -181,6 +194,7 @@ class AdminPanel extends React.Component {
           );
           this.setState({
             editAirlineIdx: -1,
+            editAirlineLogoFile: '',
             airlineBeforeEditing: null
           });
         }).catch(error => {
@@ -224,6 +238,83 @@ class AdminPanel extends React.Component {
     this.props.contract.unpause({ from: this.props.account }).catch(() => {
       this.setState({ isUnpausing: false });
     });
+  }
+
+  editCaptureFile = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    this.setState({ isEditUploading: true });
+    let file = e.target.files[0];
+    let reader = new window.FileReader();
+    reader.readAsArrayBuffer(file);
+    reader.onloadend = async () => {
+      // File is converted to a buffer to prepare for uploading to IPFS
+      let buffer = await Buffer.from(reader.result);
+      // Upload the file to IPFS and save the hash
+      this.props.ipfs.add(buffer).then(result => {
+        let fileHash = result[0].hash;
+        console.log('Logo uploaded: ', fileHash);
+        this.setState({ isEditUploading: false });
+        this.props.setAirlines(
+          this.props.airlines.map((airline, j) => (
+            j === this.state.editAirlineIdx ? { ...airline, aLogo: fileHash } : airline
+          ))
+        );
+      }).catch(err => {
+        console.log('Failed to upload the logo to IPFS: ', err);
+      })
+    };
+  };
+
+  editRemoveLogo = () => {
+    this.setState({ isEditUploading: false });
+    this.props.setAirlines(
+      this.props.airlines.map((airline, j) => (
+        j === this.state.editAirlineIdx ? { ...airline, aLogo: defaultLogoHash } : airline
+      ))
+    );
+  }
+
+  renderEditLogo = (value) => {
+    return (
+      <div>
+        <input
+          className="airline-logo-input"
+          ref={this.editAirlineLogoInput}
+          type="file"
+          value={this.state.editAirlineLogoFile}
+          onChange={this.editCaptureFile}
+        />
+        <Card className="airline-logo-card">
+          {this.state.isEditUploading ? (
+            <CircularProgress size={50} style={{ color: grey[200] }} className="airline-logo-loader" />
+          ) : null}
+          <CardMedia
+            className="airline-logo-form-image"
+            image={ipfsGatewayPrefix + value}
+            title="Airline Logo"
+          />
+          <CardActions className="airline-logo-actions">
+            <Button
+              size="small"
+              color="primary"
+              onClick={() => this.editAirlineLogoInput.current.click()}
+              className="airline-logo-button"
+            >
+              Upload Logo
+            </Button>
+            <Button
+              size="small"
+              color="primary"
+              className="airline-logo-button"
+              onClick={this.editRemoveLogo}
+            >
+              Remove Logo
+            </Button>
+          </CardActions>
+        </Card>
+      </div>
+    );
   }
 
   render() {
@@ -272,8 +363,12 @@ class AdminPanel extends React.Component {
                 {
                   name: 'Logo',
                   prop: 'aLogo',
-                  editable: false,
-                  type: 'ipfs-image'
+                  editable: true,
+                  type: 'custom',
+                  renderField: (value) => (
+                    <img src={ipfsGatewayPrefix + value} className="airline-logo" alt="logo" />
+                  ),
+                  renderEditField: this.renderEditLogo
                 },
                 {
                   name: 'Airline Name',

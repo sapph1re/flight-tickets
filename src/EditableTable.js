@@ -25,8 +25,6 @@ function formatDate(timestamp) {
   return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
 }
 
-const ipfsGatewayPrefix = 'https://ipfs.io/ipfs/';
-
 
 // Customizing the look of the table cells
 const CustomTableCell = withStyles(theme => ({
@@ -49,7 +47,9 @@ const CustomTableCell = withStyles(theme => ({
  *  - string name: the column name to be displayed
  *  - string prop: must be same as the corresponding key in "data"
  *  - boolean editable: whether this data can be edited or not
- *  - string errorProp: must be same as the corresponding key in "dataErrors";
+ *  - string errorProp: must be same as the corresponding key in "dataErrors"
+ *  - function renderField: optional function to render custom fields
+ *  - function renderEditField: optional function to render custom editable fields
  *  this parameter can be skipped when "editable" is false
  * @param editIdx - index of the row currently being edited, -1 means edit mode is off
  * @param handleChange - function to be called whenever an input is changed (in edit mode)
@@ -85,28 +85,34 @@ class EditableTable extends React.Component {
       case 'datetime':
         value = formatDate(value);
         break;
-      case 'ipfs-image':
-        value = <img src={ipfsGatewayPrefix + value} className="airline-logo" alt="logo" />;
-        break;
+      case 'custom':
       case 'text':
       default:
         value = value.toString();
         break;
     }
     if (dataColumn.editable && editIdx === rowIdx) {
-      return (
-        <TextField
-          name={dataColumn.prop}
-          value={value}
-          onChange={(e) => handleChange(e, dataColumn.prop, rowIdx)}
-          label={dataColumn.name}
-          helperText={dataErrors[dataColumn.errorProp]}
-          error={dataErrors[dataColumn.errorProp] && dataErrors[dataColumn.errorProp].length > 0}
-          fullWidth={true}
-        />
-      );
+      if (dataColumn.type === 'custom') {
+        return dataColumn.renderEditField(value);
+      } else {
+        return (
+          <TextField
+            name={dataColumn.prop}
+            value={value}
+            onChange={(e) => handleChange(e, dataColumn.prop, rowIdx)}
+            label={dataColumn.name}
+            helperText={dataErrors[dataColumn.errorProp]}
+            error={dataErrors[dataColumn.errorProp] && dataErrors[dataColumn.errorProp].length > 0}
+            fullWidth={true}
+          />
+        );
+      }
     } else {
-      return value;
+      if (dataColumn.type === 'custom') {
+        return dataColumn.renderField(value);
+      } else {
+        return value;
+      }
     }
   };
 
@@ -158,7 +164,9 @@ class EditableTable extends React.Component {
           >
             {dataStructure.map((dataColumn, columnIdx) => (
               <CustomTableCell key={`trc-${columnIdx}`}>
-                {dataRow[dataColumn.prop]}
+                {dataColumn.type === 'custom'
+                  ? dataColumn.renderField(dataRow[dataColumn.prop])
+                  : dataRow[dataColumn.prop]}
               </CustomTableCell>
             ))}
             <CustomTableCell style={{ textAlign: 'center' }}>

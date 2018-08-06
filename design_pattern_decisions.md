@@ -1,4 +1,4 @@
-## Design patterns decisions
+## Design pattern decisions
 
 ### Fail early and fail loud
 
@@ -23,3 +23,7 @@ The only reason a buying transaction could fail due to gas issues is if an airli
 ### Circuit Breaker
 
 Implemented by `.pause()` and `.unpause()` functions of the `FlightTickets` contract. Only the contract owner can call them. When the contract is paused, no one can add/edit/remove airlines/tickets nor buy any tickets. Once unpaused, it operates normally again. This behavior is covered by the tests.
+
+### Upgradable
+
+Implemented by the registry contract `FlightTicketsRegistry`. Covered by tests.

@@ -9,7 +9,7 @@ Ethereum-based decentralized application that allows airlines to sell flight tic
 - [How to run it](#how-to-run-it)
 - [Testing](#testing)
 - [Security](#security)
-- [Design patterns and best practices applied](#design-patterns-and-best-practices-applied)
+- [Design pattern decisions](#design-pattern-decisions)
 - [Author](#author)
 
 ## Architecture
@@ -146,7 +146,7 @@ truffle test
 [Read here](avoiding_common_attacks.md)
 
 
-## Design patterns decisions
+## Design pattern decisions
 
 [Read here](design_pattern_decisions.md)
 

@@ -1,0 +1,109 @@
+{
+  "contractName": "FlightTicketsRegistry",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "newBackend",
+          "type": "address"
+        }
+      ],
+      "name": "BackendChanged",
+      "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "currentBackend",
+          "type": "address"
+        }
+      ],
+      "name": "__init__",
+      "outputs": [],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "constant": false,
+      "gas": 108553,
+      "inputs": [
+        {
+          "name": "newBackend",
+          "type": "address"
+        }
+      ],
+      "name": "changeBackend",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "gas": 513,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "out",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "gas": 543,
+      "inputs": [],
+      "name": "backendContract",
+      "outputs": [
+        {
+          "name": "out",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "gas": 790,
+      "inputs": [
+        {
+          "name": "arg0",
+          "type": "int128"
+        }
+      ],
+      "name": "previousBackends",
+      "outputs": [
+        {
+          "name": "out",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "gas": 603,
+      "inputs": [],
+      "name": "previousBackendsCount",
+      "outputs": [
+        {
+          "name": "out",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x600035601c52740100000000000000000000000000000000000000006020526f7fffffffffffffffffffffffffffffff6040527fffffffffffffffffffffffffffffffff8000000000000000000000000000000060605274012a05f1fffffffffffffffffffffffffdabf41c006080527ffffffffffffffffffffffffed5fa0e000000000000000000000000000000000060a052602061032e6101403934156100a757600080fd5b602061032e60c03960c05160205181106100c057600080fd5b50336000556101405160015561031656600035601c52740100000000000000000000000000000000000000006020526f7fffffffffffffffffffffffffffffff6040527fffffffffffffffffffffffffffffffff8000000000000000000000000000000060605274012a05f1fffffffffffffffffffffffffdabf41c006080527ffffffffffffffffffffffffed5fa0e000000000000000000000000000000000060a05263eaecfca7600051141561016557602060046101403734156100b457600080fd5b60043560205181106100c557600080fd5b5060005433146100d457600080fd5b60015461014051141515610163576001546003546040518111156100f757600080fd5b6064811061010457600080fd5b600260c052602060c0200155600380546001825401101561012457600080fd5b60018154018155506101405160015561014051610160527fa90fed9f84e5115ac841b5fe79ad5ea00a6fdb225d54b306e0456df6838c3b196020610160a15b005b638da5cb5b600051141561018b57341561017e57600080fd5b60005460005260206000f3005b636f752f0960005114156101b15734156101a457600080fd5b60015460005260206000f3005b63500cb80f600051141561021e57602060046101403734156101d257600080fd5b606051600435806040519013156101e857600080fd5b80919012156101f657600080fd5b50610140516064811061020857600080fd5b600260c052602060c020015460005260206000f3005b63aab1c007600051141561024457341561023757600080fd5b60035460005260206000f3005b5b6100d1610316036100d16000396100d1610316036000f3",
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-08-05T14:51:24.309Z"
+}

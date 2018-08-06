@@ -7,7 +7,8 @@
 /coverage
 
 # production
-/build
+/build/contracts/*
+!/build/contracts/FlightTicketsRegistry.json
 
 # misc
 .DS_Store

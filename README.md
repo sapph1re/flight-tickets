@@ -48,6 +48,10 @@ Users can find the history of tickets they purchased in *My Purchases*.
 
 Airline owners can find the history of tickets they sold in *My Airline* > *Sold Tickets*.
 
+The main contract is `FlightTickets`, implemented in *Solidity*. It uses `SafeMath` library and `Pausable` and `Destructible` base contracts provided by Zeppelin. Zeppelin package code is updated manually from their github and the used files are saved to the repository, because their EthPM package is very outdated and seems to be unmaintained.
+
+Another contract is `FlightTicketsRegistry`, implemented in *Vyper* and compiled to *LLL* also. Its bytecode and ABI are saved manually to `/build/contracts/FlightTicketsRegistry.json`.
+
 ## Prerequisites
 
 * npm

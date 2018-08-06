@@ -2,6 +2,16 @@
 
 Ethereum-based decentralized application that allows airlines to sell flight tickets to customers via smart contracts and manages payments between the parties in cryptocurrency.
 
+## Table of content
+
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [How to run it](#how-to-run-it)
+- [Testing](#testing)
+- [Security](#security)
+- [Design patterns and best practices applied](#design-patterns-and-best-practices-applied)
+- [Author](#author)
+
 ## Architecture
 
 Admin can add/edit/remove airlines. Each airline has:

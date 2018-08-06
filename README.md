@@ -139,63 +139,12 @@ truffle test
 
 ## Security
 
-### User rights
-
-Execution of contract functions is only available to those who have rights for it. The rights a user may have:
-* search & buy tickets: anyone
-* add/edit/remove tickets of an airline: only the owner of that airline
-* add/edit/remove airlines, pause/unpause/destroy the contract: only the admin (the owner of the contract)
-
-These access restrictions are implemented in modifiers `onlyOwner`, `onlyAirlineOwner` and `onlyTicketOwner`.
-
-### Overflow protection
-
-`SafeMath` library is used to perform arithmetic operations that are otherwise vulnerable to overflowing or underflowing. The library implements checking if the operation has overflown/underflown and throws if it has, so such a transaction will not go through.
-
-### Re-entrancy protection
-
-Only `.transfer()` is used to send ether, which does not provide enough gas to execute any code.
-
-All ether transfers are performed in the end of the functions, after all important state changes are made.
-
-When user buys a ticket, the payment is forwarded to the airline owner address, which is set by admin. Thus airline owner addresses are considered trusted to be external addresses and not contract addresses. Otherwise the worst case is that the transaction will revert and the purchase will not be made.
-
-The only completely untrusted address to receive money from the contract is the ticket buyer himself, whenever he sends an excessive amount of ether. In this case he will get the change back, in the end of the buying operation. Again, with `.transfer()` being used, the worst thing a malicious user can do with the provided gas is only to revert, thus failing the whole transaction and not changing anything in the contract state at all.
-
-### Contract balance
-
-The contract is not supposed to store any ether, because it only forwards the payments from a buyer to the airline. The contract does not rely nor count its own balance. The fallback function always reverts. If any ether is forcibly sent to the contract, the ether can be then redeemed by destroying the contract.
-
-### Timestamp dependence
-
-Block timestamp is only used in `addTicket()` to validate that the flight departure time is in the future. Tickets are not supposed to be added 30 seconds or less before the flight departure anyways, so the potential 30-second drift does not matter here.
+[Read here](avoiding_common_attacks.md)
 
 
-## Design patterns and best practices applied
+## Design patterns decisions
 
-### Fail early and fail loud
-
-Most of the contract functions perform crucial `require()` checks in the beginning, reverting if anything is wrong with the input data. Reason messages are also provided, though they're not widely supported yet.
-
-### Restricting access
-
-Modifiers `onlyOwner`, `onlyAirlineOwner` and `onlyTicketOwner` implement access restriction, making sure that only those are able to change the relevant data who are supposed to be. This behavior is covered by the tests.
-
-### Mortal
-
-`FlightTickets` contract can be destroyed by executing on of its function: `.destroy()` or `.destroyAndSend(recipient)`. This behavior is covered by the tests.
-
-The contract is not supposed to store any ether, but in case it happens to (as there are ways to forcefully fund a contract with ether), the ether can be redeemed when destroying the contract.
-
-### Pull over Push payments
-
-Not used here, because there is no such thing as a fund withdrawal in the workflow of this application. The funds are directly forwarded from the buyer of a ticket to the airline owner, in the same transaction, and it burns about the same amount of gas every time.
-
-The only reason a buying transaction could fail due to gas issues is if an airline owner address is a contract address. While airline data is set up and controlled by the admin, it's the admin's responsibility to only set airline owner to external addresses and not contracts. Otherwise such an airline won't be able to sell tickets at all.
-
-### Circuit Breaker
-
-Implemented by `.pause()` and `.unpause()` functions of the `FlightTickets` contract. Only the contract owner can call them. When the contract is paused, no one can add/edit/remove airlines/tickets nor buy any tickets. Once unpaused, it operates normally again. This behavior is covered by the tests.
+[Read here](design_pattern_decisions.md)
 
 ## Author
 

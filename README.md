@@ -54,16 +54,18 @@ Another contract is `FlightTicketsRegistry`, implemented in *Vyper* and compiled
 
 ## Prerequisites
 
-* npm
-* truffle
-* ganache-cli
+* NodeJS 10+
+* npm 6+
+* truffle 4.1.13+
+* ganache-cli 6.1.6+
 * browser with MetaMask connected to ganache
 
 ## How to run it
 
-1. Clone the repository
+1. Clone the repository and navigate to it
 ```
 git clone https://github.com/sapph1re/flight-tickets.git
+cd flight-tickets
 ```
 
 2. Install dependencies:
@@ -78,6 +80,8 @@ npm install
 ganache-cli
 ```
 
+Make sure it's listening at `127.0.0.1:8545`.
+
 3. Compile the contracts:
 
 ```
@@ -90,7 +94,7 @@ truffle compile
 truffle migrate
 ```
 
-5. This step is optional. Populate the contract with sample data. Do it if you want to have some data to play with. Otherwise you can add all airlines and tickets by yourself.
+5. *This step is optional.* Populate the contract with sample data. Do it if you want to have some data to play with. Otherwise you can add all airlines and tickets by yourself.
 
 ```
 npm run populate

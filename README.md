@@ -59,6 +59,10 @@ Contracts are deployed in Rinkeby testnet. Contract addresses in Rinkeby are lis
 
 The UI is available here: https://sapph1re.github.io/flight-tickets/
 
+Check the *Play around* block in the [How to run it](#how-to-run-it) section to get an idea of what you can do.
+
+Sample data is deployed with cities: Dubai, Bangkok, Hong Kong, Tokyo, Singapore, Jakarta, Denpasar. Flight dates provided by the sample data: 4 Dec 2018 - 7 Dec 2018. Check it out, try booking if you have enough test ether in Rinkeby.
+
 Contact me if you want to own an airline :)
 
 ## Prerequisites

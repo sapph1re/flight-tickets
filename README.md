@@ -55,9 +55,9 @@ Another contract is `FlightTicketsRegistry`, implemented in *Vyper* and compiled
 
 ## Demo in Rinkeby
 
-Contracts are deployed in Rinkeby testnet. Contract addresses in Rinkeby are listed in `deployed_addresses.txt`. The UI is available here:
+Contracts are deployed in Rinkeby testnet. Contract addresses in Rinkeby are listed in `deployed_addresses.txt`.
 
-https://sapph1re.github.io/flight-tickets/
+The UI is available here: https://sapph1re.github.io/flight-tickets/
 
 ## Prerequisites
 

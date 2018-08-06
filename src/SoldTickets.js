@@ -13,7 +13,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
  */
 class SoldTickets extends React.Component {
 
-  formatETH = price => {
+  formatETH(price) {
     return this.props.web3.fromWei(price, 'ether') + ' ETH';
   }
 

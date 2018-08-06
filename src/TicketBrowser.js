@@ -131,7 +131,7 @@ class TicketBrowser extends React.Component {
    * @param {object} search - object containing ticket data: { sFrom, sTo }
    * @return {object} - object of errors, empty object means no errors
    */
-  searchValidate = (search) => {
+  searchValidate(search) {
     let errors = {};
     if (search.sFrom.length === 0) {
       errors.sFromError = 'Where are you travelling from?';
@@ -150,7 +150,7 @@ class TicketBrowser extends React.Component {
    * @param search the search form data
    * @param onProcessed callback for when the processing is done and results are displayed
    */
-  searchSubmit = (search, onProcessed) => {
+  searchSubmit(search, onProcessed) {
     // Clear existing results first
     this.setState({
       flights: [],
@@ -235,28 +235,28 @@ class TicketBrowser extends React.Component {
     });
   }
 
-  formatETH = price => {
+  formatETH(price) {
     return this.props.web3.fromWei(price, 'ether') + ' ETH';
   }
 
-  onChangeSorting = e => {
+  onChangeSorting(e) {
     this.setState({ sorting: e.target.value });
   }
 
-  onClickBook = (flight) => {
+  onClickBook(flight) {
     this.setState({
       flightChosen: flight,
       isBookDialogOpen: true
     });
   }
 
-  closeBookDialog = () => {
+  closeBookDialog() {
     this.setState({
       isBookDialogOpen: false
     });
   }
 
-  submitBooking = (data, onSuccess, onFailure) => {
+  submitBooking(data, onSuccess, onFailure) {
     let tId1 = data.flight.tickets[0].tId;
     let tId2 = data.flight.tickets.length > 1 ? data.flight.tickets[1].tId : 0;
     this.props.contract.bookFlight(
@@ -275,7 +275,7 @@ class TicketBrowser extends React.Component {
     }).catch(onFailure);
   }
 
-  closeSuccessDialog = (goToMyPurchases) => {
+  closeSuccessDialog(goToMyPurchases) {
     this.setState({
       isSuccessDialogOpen: false
     });

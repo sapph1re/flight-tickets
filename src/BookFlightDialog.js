@@ -19,22 +19,25 @@ import grey from '@material-ui/core/colors/grey';
  */
 class BookFlightDialog extends React.Component {
 
-  state = {
-    firstName: '',
-    lastName: '',
-    firstNameError: '',
-    lastNameError: '',
-    isProcessing: false
+  constructor(props) {
+    super(props);
+    this.state = {
+      firstName: '',
+      lastName: '',
+      firstNameError: '',
+      lastNameError: '',
+      isProcessing: false
+    }
   }
 
   /** Update the data in the state whenever an input value is changed */
-  change = e => {
+  change(e) {
     this.setState({
       [e.target.name]: e.target.value
     });
-  };
+  }
 
-  submit = e => {
+  submit(e) {
     e.preventDefault();
     this.setState({
       firstNameError: '',

@@ -1,7 +1,7 @@
 import React from 'react';
 import getWeb3 from './utils/getWeb3';
-import FlightTicketsContract from '../build/contracts/FlightTickets.json';
-import FlightTicketsRegistryContract from '../build/contracts/FlightTicketsRegistry.json';
+import FlightTicketsContract from './build/contracts/FlightTickets.json';
+import FlightTicketsRegistryContract from './build/contracts/FlightTicketsRegistry.json';
 import AdminPanel from './AdminPanel';
 import MyAirline from './MyAirline';
 import TicketBrowser from './TicketBrowser';
@@ -143,17 +143,17 @@ class App extends React.Component {
     ).watch(this.updateTicketsPurchased);
   }
 
-  setOnContractReady = (callback) => {
+  setOnContractReady(callback) {
     this.onContractReady = () => {
       callback(this.state.web3, this.state.contract);
     }
     if (this.state.web3 !== null && this.state.contract !== null) {
       this.onContractReady();
     }
-  };
+  }
 
   /** Figure out the rights of the user and save it to the state */
-  setUserRights = () => {
+  setUserRights() {
     // Get the owner of the contract
     return this.state.contract.owner.call().then(owner => {
       // Contract owner is admin
@@ -163,10 +163,10 @@ class App extends React.Component {
       let ownedAirlines = this.state.airlines.filter((airline, i) => (this.state.account === airline.aOwner), this);
       return this.setState({ userOwnsAirlines: ownedAirlines });
     });
-  };
+  }
 
   /** Get the list of airlines from the contract and save it to the state */
-  loadAirlines = () => {
+  loadAirlines() {
     // First we get the total number of airlines
     return this.state.contract.getAirlinesCount.call().then(airlinesCount => {
       // Then we iterate over the array of airlines to load each of them
@@ -194,18 +194,18 @@ class App extends React.Component {
     }).catch(error => {
       console.log(error);
     });
-  };
+  }
 
-  setAirlines = (airlines) => {
+  setAirlines(airlines) {
     return this.setState({ airlines: airlines });
-  };
+  }
 
   /**
    * Loads ticket and airline data from the contract and builds a nice object from it
    * @param {Number} tId - ticket ID
    * @return {Promise} - resolves into a nice object with ticket and airline data
    */
-  getTicketData = (tId) => {
+  getTicketData(tId) {
     return this.state.contract.getTicketById.call(tId).then(data => {
       let aId = Number(data[1]);
       return this.state.contract.getAirlineById.call(aId).then(result => {
@@ -227,9 +227,9 @@ class App extends React.Component {
         }
       });
     });
-  };
+  }
 
-  updateTicketsPurchased = (error, result) => {
+  updateTicketsPurchased(error, result) {
     if (error) {
       console.log(error);
       return;
@@ -264,9 +264,9 @@ class App extends React.Component {
         })
       }));
     });
-  };
+  }
 
-  onPurchaseComplete = (txResult) => {
+  onPurchaseComplete(txResult) {
     txResult.logs.forEach(log => {
       if (log.event !== 'LogTicketPurchased')
         return;
@@ -274,17 +274,19 @@ class App extends React.Component {
         return;
       this.updateTicketsPurchased(null, log);
     });
-  };
+  }
 
-  switchTab = (event, value) => {
+  switchTab(event, value) {
     this.setState({ activeTab: value });
-  };
+  }
 
-  renderMessage = (message) => (
-    <div className="App" style={{ textAlign: 'center', marginTop: 100 }}>
-      {message}
-    </div>
-  );
+  renderMessage(message) {
+    return (
+      <div className="App" style={{ textAlign: 'center', marginTop: 100 }}>
+        {message}
+      </div>
+    );
+  }
 
   render() {
     if (!this.state.web3) {

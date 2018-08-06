@@ -34,14 +34,14 @@ class SearchTicketForm extends React.Component {
   }
 
   /** Update the data in the state whenever an input value is changed */
-  change = e => {
+  change(e) {
     this.setState({
       [e.target.name]: e.target.value
     });
   };
 
   /** Submit the data */
-  onSubmit = e => {
+  onSubmit(e) {
     e.preventDefault();
     // Clear the errors first
     this.setState({
@@ -75,7 +75,7 @@ class SearchTicketForm extends React.Component {
     }
   };
 
-  onlyDirectSwitched = e => {
+  onlyDirectSwitched(e) {
     this.setState({ sOnlyDirect: e.target.checked });
   }
 

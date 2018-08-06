@@ -81,7 +81,7 @@ class MyAirline extends React.Component {
   }
 
   /** Get the list of tickets from the contract and save it to the state */
-  loadTickets = () => {
+  loadTickets() {
     // First we get the total number of tickets that the airline has
     const aId = this.props.airlines[this.state.airlineIdx].aId;
     return this.state.contract.getTicketsCount.call(aId).then(ticketsCount => {
@@ -117,7 +117,7 @@ class MyAirline extends React.Component {
   }
 
   /** When user chooses one of the airlines he owns */
-  selectAirline = (e) => {
+  selectAirline(e) {
     this.setState({
       airlineIdx: e.target.value,
       soldTickets: []
@@ -132,7 +132,7 @@ class MyAirline extends React.Component {
    * @param {object} ticket - object containing ticket data: { tFrom, tTo, tPrice, tQuantity, tDeparture, tArrival }
    * @return {object} - object of errors, empty object means no errors
    */
-  ticketValidateSubmit = (ticket) => {
+  ticketValidateSubmit(ticket) {
     let errors = {};
     if (ticket.tFrom.length === 0) {
       errors.tFromError = 'City is required';
@@ -164,7 +164,7 @@ class MyAirline extends React.Component {
    * @param {object} ticket - object containing ticket data: { tPrice, tQuantity }
    * @return {object} - object of errors, empty object means no errors
    */
-  ticketValidateEdit = (ticket) => {
+  ticketValidateEdit(ticket) {
     let errors = {};
     if (ticket.tPrice < 0) {
       errors.tPriceError = 'Price must not be negative';
@@ -176,7 +176,7 @@ class MyAirline extends React.Component {
   }
 
   /** Add a new ticket to the contract and update the state to display the change */
-  ticketSubmit = (ticket) => {
+  ticketSubmit(ticket) {
     const aId = this.props.airlines[this.state.airlineIdx].aId;
     // Add the ticket to the contract
     const priceWei = this.state.web3.toWei(ticket.tPrice, 'ether');
@@ -210,7 +210,7 @@ class MyAirline extends React.Component {
   }
 
   /** Remove a ticket from the contract and update the state to display the change */
-  ticketRemove = (i) => {
+  ticketRemove(i) {
     // Remove the ticket from the contract
     this.state.contract.removeTicket(
       this.state.tickets[i].tId,
@@ -238,7 +238,7 @@ class MyAirline extends React.Component {
    * Enable edit mode
    * @param {number} i - index of the row to be edited
    */
-  startEditing = (i) => {
+  startEditing(i) {
     if (this.state.editTicketIdx === -1) {
       this.setState(state => ({
         editTicketIdx: i,
@@ -248,7 +248,7 @@ class MyAirline extends React.Component {
   }
 
   /** Finish editing, save the changes to the contract and update the table */
-  finishEditing = () => {
+  finishEditing() {
     let ticketEdited = this.state.tickets[this.state.editTicketIdx];
     ticketEdited.tPrice = parseFloat(ticketEdited.tPrice);
     ticketEdited.tQuantity = parseInt(ticketEdited.tQuantity, 10);
@@ -298,7 +298,7 @@ class MyAirline extends React.Component {
   }
 
   /** Quit the edit mode and revert the changes */
-  cancelEditing = () => {
+  cancelEditing() {
     this.setState(state => ({
       tickets: state.tickets.map((ticket, j) => j === state.editTicketIdx ? state.ticketBeforeEditing : ticket),
       editTicketIdx: -1,
@@ -308,14 +308,14 @@ class MyAirline extends React.Component {
   }
 
   /** Handle changes in the inputs when in the edit mode */
-  onInputChanged = (e, name, i) => {
+  onInputChanged(e, name, i) {
     const { value } = e.target;
     this.setState(state => ({
       tickets: state.tickets.map((ticket, j) => j === i ? { ...ticket, [name]: value } : ticket)
     }));
   }
 
-  updateTicketsSold = (error, result) => {
+  updateTicketsSold(error, result) {
     if (error) {
       console.log(error);
       return;
@@ -350,7 +350,7 @@ class MyAirline extends React.Component {
         })
       }));
     });
-  };
+  }
 
   render() {
     return (

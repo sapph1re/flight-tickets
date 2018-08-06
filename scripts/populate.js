@@ -6,7 +6,12 @@ const sampleData = require('../sample-data.json');
 const ethRPC = "http://localhost:8545";
 const aLogoDefault = 'QmZ9Nbn5Bfcf28p5Mn9Aobw2hvkW4ANxJJDBZdh5kUyQPm';
 
-var web3 = new Web3(new Web3.providers.HttpProvider(ethRPC));
+// var web3 = new Web3(new Web3.providers.HttpProvider(ethRPC));
+const PrivateKeyProvider = require("truffle-privatekey-provider");
+const privateKey = "5B672042AF34CF75C490CD1582D5538F60460E242D4230414368C6202DB15AC9";
+const provider =  new PrivateKeyProvider(privateKey, "https://rinkeby.infura.io/yldrXSAA7dkvKUHIvcZP");
+var web3 = new Web3(provider);
+
 const FlightTickets = contract(contractData);
 FlightTickets.setProvider(web3.currentProvider);
 
@@ -33,7 +38,8 @@ async function populate(flightTickets, accounts) {
       let row = sampleData.data[i];
       // admin will own the first airline, the second account owns second and third airlines,
       // the rest are owned by the third account
-      let aOwner = i <= 2 ? (i === 0 ? accounts[0] : accounts[1]) : accounts[2];
+      // let aOwner = i <= 2 ? (i === 0 ? accounts[0] : accounts[1]) : accounts[2];
+      let aOwner = accounts[0]
       console.log('Adding airline: ' + row.airline.aName + ' owned by ' + aOwner + '...');
       await flightTickets.addAirline(
         row.airline.aName,

@@ -9,32 +9,35 @@ import Button from '@material-ui/core/Button';
  * @param onSubmit - function to be called to submit the data
  */
 class TicketForm extends React.Component {
-  state = {
-    // input data
-    tFrom: '',
-    tTo: '',
-    tPrice: '',
-    tQuantity: '',
-    tDeparture: '',
-    tArrival: '',
-    // errors for the inputs
-    tFromError: '',
-    tToError: '',
-    tPriceError: '',
-    tQuantityError: '',
-    tDepartureError: '',
-    tArrivalError: '',
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      // input data
+      tFrom: '',
+      tTo: '',
+      tPrice: '',
+      tQuantity: '',
+      tDeparture: '',
+      tArrival: '',
+      // errors for the inputs
+      tFromError: '',
+      tToError: '',
+      tPriceError: '',
+      tQuantityError: '',
+      tDepartureError: '',
+      tArrivalError: '',
+    };
+  }
 
   /** Update the data in the state whenever an input value is changed */
-  change = e => {
+  change(e) {
     this.setState({
       [e.target.name]: e.target.value
     });
   };
 
   /** Submit the data */
-  onSubmit = e => {
+  onSubmit(e) {
     e.preventDefault();
     // Clear the errors first
     this.setState({
@@ -51,8 +54,8 @@ class TicketForm extends React.Component {
       tTo: this.state.tTo.trim(),
       tPrice: parseFloat(this.state.tPrice),
       tQuantity: parseInt(this.state.tQuantity, 10),
-      tDeparture: Date.parse(this.state.tDeparture+'+00:00')/1000,
-      tArrival: Date.parse(this.state.tArrival+'+00:00')/1000
+      tDeparture: Date.parse(this.state.tDeparture + '+00:00') / 1000,
+      tArrival: Date.parse(this.state.tArrival + '+00:00') / 1000
     };
     // Validate the data
     let errors = this.props.onValidate(data);
@@ -77,7 +80,7 @@ class TicketForm extends React.Component {
   render() {
     return (
       <form onSubmit={e => this.onSubmit(e)}>
-        <h3 style={{marginTop: 10, marginLeft: 5, marginBottom: 5}}>Add Ticket</h3>
+        <h3 style={{ marginTop: 10, marginLeft: 5, marginBottom: 5 }}>Add Ticket</h3>
         <Grid container spacing={24}>
           <Grid item xs={6}>
             <TextField

@@ -35,13 +35,13 @@ class AirlineForm extends React.Component {
   }
 
   /** Update the data in the state whenever an input value is changed */
-  change = e => {
+  change(e) {
     this.setState({
       [e.target.name]: e.target.value
     });
   };
 
-  captureFile = (e) => {
+  captureFile(e) {
     e.stopPropagation();
     e.preventDefault();
     this.setState({ isUploading: true });
@@ -65,7 +65,7 @@ class AirlineForm extends React.Component {
     };
   };
 
-  removeLogo = () => {
+  removeLogo() {
     this.setState({
       aLogoHash: defaultLogoHash,
       isUploading: false
@@ -73,7 +73,7 @@ class AirlineForm extends React.Component {
   }
 
   /** Submit the data */
-  onSubmit = e => {
+  onSubmit(e) {
     e.preventDefault();
     // Clear the errors first
     this.setState({

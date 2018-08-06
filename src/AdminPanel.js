@@ -60,7 +60,7 @@ class AdminPanel extends React.Component {
    * @param {object} airline - object containing airline data: aName, aOwner
    * @return {Promise} - promise that will resolve to an object of errors; empty object means no errors
    */
-  airlineValidate = (airline) => {
+  airlineValidate(airline) {
     let errors = {};
     if (airline.aName.length < 3) {
       errors.aNameError = 'Airline name needs to be at least 3 characters long';
@@ -88,7 +88,7 @@ class AdminPanel extends React.Component {
   }
 
   /** Add a new airline to the contract and update the state to display the change */
-  airlineSubmit = (airline) => {
+  airlineSubmit(airline) {
     // Add the airline to the contract
     this.props.contract.addAirline(
       this.props.web3.toHex(airline.aName),
@@ -112,7 +112,7 @@ class AdminPanel extends React.Component {
   }
 
   /** Remove an airline from the contract and update the state to display the change */
-  airlineRemove = (i) => {
+  airlineRemove(i) {
     const airline = this.props.airlines[i];
     // Remove the airline from the contract
     this.props.contract.removeAirline(
@@ -141,7 +141,7 @@ class AdminPanel extends React.Component {
    * Enable edit mode
    * @param {number} i - index of the row to be edited
    */
-  startEditing = (i) => {
+  startEditing(i) {
     if (this.state.editAirlineIdx === -1) {
       this.setState(state => ({
         editAirlineIdx: i,
@@ -151,7 +151,7 @@ class AdminPanel extends React.Component {
   }
 
   /** Finish editing, save the changes to the contract and update the table */
-  finishEditing = () => {
+  finishEditing() {
     if (this.state.isEditUploading)
       return;
     let airlineEdited = this.props.airlines[this.state.editAirlineIdx];
@@ -205,7 +205,7 @@ class AdminPanel extends React.Component {
   }
 
   /** Quit the edit mode and revert the changes */
-  cancelEditing = () => {
+  cancelEditing() {
     this.props.setAirlines(
       this.props.airlines.map((airline, j) => {
         return j === this.state.editAirlineIdx ? this.state.airlineBeforeEditing : airline
@@ -219,28 +219,28 @@ class AdminPanel extends React.Component {
   }
 
   /** Handle changes in the inputs when in the edit mode */
-  onInputChanged = (e, name, i) => {
+  onInputChanged(e, name, i) {
     const { value } = e.target;
     this.props.setAirlines(
       this.props.airlines.map((airline, j) => j === i ? { ...airline, [name]: value } : airline)
     );
   }
 
-  pauseContract = () => {
+  pauseContract() {
     this.setState({ isPausing: true });
     this.props.contract.pause({ from: this.props.account }).catch(() => {
       this.setState({ isPausing: false });
     });
   }
 
-  unpauseContract = () => {
+  unpauseContract() {
     this.setState({ isUnpausing: true });
     this.props.contract.unpause({ from: this.props.account }).catch(() => {
       this.setState({ isUnpausing: false });
     });
   }
 
-  editCaptureFile = (e) => {
+  editCaptureFile(e) {
     e.stopPropagation();
     e.preventDefault();
     this.setState({ isEditUploading: true });
@@ -266,7 +266,7 @@ class AdminPanel extends React.Component {
     };
   };
 
-  editRemoveLogo = () => {
+  editRemoveLogo() {
     this.setState({ isEditUploading: false });
     this.props.setAirlines(
       this.props.airlines.map((airline, j) => (
@@ -275,7 +275,7 @@ class AdminPanel extends React.Component {
     );
   }
 
-  renderEditLogo = (value) => {
+  renderEditLogo(value) {
     return (
       <div>
         <input

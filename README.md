@@ -59,6 +59,8 @@ Contracts are deployed in Rinkeby testnet. Contract addresses in Rinkeby are lis
 
 The UI is available here: https://sapph1re.github.io/flight-tickets/
 
+Contact me if you want to own an airline :)
+
 ## Prerequisites
 
 * NodeJS 10+

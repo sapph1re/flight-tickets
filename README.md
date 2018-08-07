@@ -19,8 +19,8 @@ Contracts are deployed in Rinkeby testnet. Contract addresses in Rinkeby are lis
 
 The UI is available here (use any):
 * IPFS + ENS: [http://flight-tickets.thisisme.eth](flight-tickets.thisisme.eth)
- 
-You may use a browser extension to resolve `.eth` domain names, e.g. [ENS Content Resolver](https://github.com/monkybrain/ens-content-resolver)
+  
+  You can use a browser extension to resolve `.eth` domain names, e.g. [ENS Content Resolver](https://github.com/monkybrain/ens-content-resolver)
 * IPFS directly: [Qmc6Ejj7XaxPoeQNvQJ6zeLFPEh1h1h98njVognhnU7qmY](https://ipfs.io/ipfs/Qmc6Ejj7XaxPoeQNvQJ6zeLFPEh1h1h98njVognhnU7qmY/)
 * Traditionally hosted: https://sapph1re.github.io/flight-tickets/
 
@@ -30,7 +30,7 @@ Sample data is deployed with cities: Dubai, Bangkok, Hong Kong, Tokyo, Singapore
 
 Flight dates provided by the sample data: 4 Dec 2018 - 7 Dec 2018.
 
-Check it out, try booking if you have some test ether in Rinkeby. If you don't use the [faucet](https://faucet.rinkeby.io/) to get some and come back.
+Check it out, try booking. If you need test ether in Rinkeby, use the [faucet](https://faucet.rinkeby.io/) to get some and come back.
 
 Contact me if you want to own an airline :)
 

@@ -2,9 +2,11 @@
 
 Ethereum-based decentralized application that allows airlines to sell flight tickets to customers via smart contracts and manages payments between the parties in cryptocurrency.
 
-A quick tour over the functionality:
+A quick video tour over the functionality:
 
 [![Demo video](https://img.youtube.com/vi/1UF5LnCs5Ps/0.jpg)](https://youtu.be/1UF5LnCs5Ps "Click to play")
+
+https://youtu.be/1UF5LnCs5Ps
 
 ## Table of content
 

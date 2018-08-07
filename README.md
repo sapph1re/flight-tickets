@@ -4,14 +4,30 @@ Ethereum-based decentralized application that allows airlines to sell flight tic
 
 ## Table of content
 
-- [Architecture](#architecture)
 - [Demo in Rinkeby](#demo-in-rinkeby)
+- [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [How to run it](#how-to-run-it)
 - [Testing](#testing)
 - [Security](#security)
 - [Design pattern decisions](#design-pattern-decisions)
 - [Author](#author)
+
+## Demo in Rinkeby
+
+Contracts are deployed in Rinkeby testnet. Contract addresses in Rinkeby are listed in `deployed_addresses.txt`.
+
+The UI is available here (use any):
+* IPFS + ENS: [http://flight-tickets.thisisme.eth](flight-tickets.thisisme.eth)
+You will need a browser extension to resolve the domain name, like [ENS Content Resolver](https://github.com/monkybrain/ens-content-resolver)
+* IPFS directly: [Qmc6Ejj7XaxPoeQNvQJ6zeLFPEh1h1h98njVognhnU7qmY](https://ipfs.io/ipfs/Qmc6Ejj7XaxPoeQNvQJ6zeLFPEh1h1h98njVognhnU7qmY/)
+* Traditionally hosted: https://sapph1re.github.io/flight-tickets/
+
+Check the *Play around* block in the [How to run it](#how-to-run-it) section to get an idea of what you can do.
+
+Sample data is deployed with cities: Dubai, Bangkok, Hong Kong, Tokyo, Singapore, Jakarta, Denpasar. Flight dates provided by the sample data: 4 Dec 2018 - 7 Dec 2018. Check it out, try booking if you have enough test ether in Rinkeby.
+
+Contact me if you want to own an airline :)
 
 ## Architecture
 
@@ -52,18 +68,6 @@ Airline owners can find the history of tickets they sold in *My Airline* > *Sold
 The main contract is `FlightTickets`, implemented in *Solidity*. It uses `SafeMath` library and `Pausable` and `Destructible` base contracts provided by Zeppelin. Zeppelin package code is updated manually from their github and the used files are saved to the repository, because their EthPM package is very outdated and seems to be unmaintained.
 
 Another contract is `FlightTicketsRegistry`, implemented in *Vyper* and compiled to *LLL* also. Its bytecode and ABI are saved manually to `/build/contracts/FlightTicketsRegistry.json`.
-
-## Demo in Rinkeby
-
-Contracts are deployed in Rinkeby testnet. Contract addresses in Rinkeby are listed in `deployed_addresses.txt`.
-
-The UI is available here: https://sapph1re.github.io/flight-tickets/
-
-Check the *Play around* block in the [How to run it](#how-to-run-it) section to get an idea of what you can do.
-
-Sample data is deployed with cities: Dubai, Bangkok, Hong Kong, Tokyo, Singapore, Jakarta, Denpasar. Flight dates provided by the sample data: 4 Dec 2018 - 7 Dec 2018. Check it out, try booking if you have enough test ether in Rinkeby.
-
-Contact me if you want to own an airline :)
 
 ## Prerequisites
 

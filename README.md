@@ -24,7 +24,7 @@ https://youtu.be/1UF5LnCs5Ps
 Contracts are deployed in Rinkeby testnet. Contract addresses in Rinkeby are listed in `deployed_addresses.txt`.
 
 The UI is available here (use any):
-* IPFS + ENS: [flight-tickets.thisisme.eth](http://flight-tickets.thisisme.eth)
+* IPFS + ENS: [flight-tickets.eth](http://flight-tickets.eth)
   
   You can use a browser extension to resolve `.eth` domain names, e.g. [ENS Content Resolver](https://github.com/monkybrain/ens-content-resolver)
 * IPFS directly: [Qmc6Ejj7XaxPoeQNvQJ6zeLFPEh1h1h98njVognhnU7qmY](https://ipfs.io/ipfs/Qmc6Ejj7XaxPoeQNvQJ6zeLFPEh1h1h98njVognhnU7qmY/)
